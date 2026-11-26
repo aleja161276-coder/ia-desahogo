@@ -1,0 +1,1205 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>IA de Desahogo con Neuro Cian</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+
+/* Layout: avatar en video a la izquierda, subtítulos y capítulos a la derecha; una columna en móvil.
+   Paleta: solo los colores de Neuro Cian. */
+:root{
+  --cian-vivo:#48C0C7; --cian-claro:#86E2E5; --cian-suave:#7ABABD; --cian-profundo:#3E6D71; --cian-oscuro:#284D54;
+  --menta:#D0F0EE; --menta-2:#BEDBD6; --crema:#ECE4D5; --crema-2:#D3C8B9; --blanco:#E9EDE4;
+  --bg:var(--crema); --surface:var(--menta); --surface-2:var(--blanco); --fg:var(--cian-oscuro); --muted:var(--cian-profundo);
+  --line:var(--menta-2); --btn:var(--cian-oscuro); --btn-fg:var(--blanco); --accent:var(--cian-vivo); --glow:var(--cian-claro);
+  --f-display:"Quicksand","Trebuchet MS",sans-serif; --f-body:"Nunito","Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:var(--cian-oscuro); --surface:var(--cian-profundo); --surface-2:var(--cian-oscuro); --fg:var(--blanco); --muted:var(--menta-2);
+  --line:var(--cian-suave); --btn:var(--cian-claro); --btn-fg:var(--cian-oscuro); color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:var(--cian-oscuro); --surface:var(--cian-profundo); --surface-2:var(--cian-oscuro); --fg:var(--blanco); --muted:var(--menta-2);
+  --line:var(--cian-suave); --btn:var(--cian-claro); --btn-fg:var(--cian-oscuro); color-scheme:dark; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font:700 1.15rem var(--f-display);letter-spacing:.04em}
+.brand span{color:var(--muted);font-weight:600}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,select,input{font:inherit;color:inherit}
+.chip{border:1.5px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:700;font-size:.9rem;color:var(--fg)}
+.chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+.screen{position:relative;border-radius:22px;overflow:hidden;background:var(--cian-oscuro);aspect-ratio:16/9;max-width:100%;
+  box-shadow:0 0 0 3px var(--line)}
+.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .6s ease}
+.screen video.on{opacity:1}
+.screen.speaking{box-shadow:0 0 0 3px var(--glow),0 0 40px var(--accent)}
+.badge{position:absolute;left:12px;bottom:12px;background:var(--cian-oscuro);color:var(--blanco);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700}
+.panel{display:grid;gap:14px}
+h1{font:700 clamp(1.7rem,4.2vw,2.5rem)/1.15 var(--f-display);margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0}
+.hello{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hello input{flex:1 1 180px;min-width:0;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 12px;color:var(--fg)}
+.btn{border:0;background:var(--btn);color:var(--btn-fg);border-radius:14px;padding:12px 20px;font-weight:800;cursor:pointer;font-size:1rem}
+.btn.ghost{background:var(--surface-2);color:var(--fg);border:1.5px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.caption{background:var(--surface);border-radius:18px;padding:16px 18px;min-height:7.5em;font-size:1.05rem}
+.caption .s{opacity:.55;transition:opacity .2s}
+.caption .s.on{opacity:1;font-weight:700}
+.settings{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.9rem;color:var(--muted)}
+.settings select{border:1.5px solid var(--line);background:var(--surface-2);border-radius:10px;padding:6px 8px;max-width:100%;color:var(--fg)}
+h2{font:700 1.35rem var(--f-display);margin:0 0 4px}
+.chapters{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.ch{text-align:left;border:1.5px solid var(--line);background:var(--surface-2);border-radius:16px;padding:14px;cursor:pointer;display:grid;gap:4px;color:var(--fg)}
+.ch strong{font:700 1.05rem var(--f-display)}
+.ch small{color:var(--muted);font-size:.88rem}
+.ch[aria-current="true"]{background:var(--surface);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.help{background:var(--cian-oscuro);color:var(--blanco);border-radius:20px;padding:18px 20px;display:grid;gap:10px}
+.help h2{color:var(--cian-claro)}
+.help ul{margin:0;padding-left:1.1em}
+.help .chip{background:var(--cian-profundo);color:var(--blanco);border-color:var(--cian-suave)}
+.help .chip[aria-pressed="true"]{background:var(--cian-claro);color:var(--cian-oscuro);border-color:var(--cian-claro)}
+.note{font-size:.85rem;color:var(--muted)}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.sumry{background:var(--surface);border-radius:18px;padding:16px 18px;min-height:7.5em;font-size:1.02rem}
+.sumry h3{margin:0 0 6px;font:700 1.1rem var(--f-display)}
+.sumry p{margin:0 0 6px}
+.state{font-weight:700;color:var(--muted);font-size:.9rem}
+.txt{border:1.5px solid var(--line);background:var(--surface-2);border-radius:16px;padding:14px;display:grid;gap:4px}
+.txt strong{font:700 1.05rem var(--f-display)}
+.ch .tag{font-size:.75rem;font-weight:800;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+:root{--c1:var(--cian-vivo);--c1f:var(--cian-oscuro);--c2:var(--cian-claro);--c2f:var(--cian-oscuro);--c3:var(--cian-profundo);--c3f:var(--blanco);
+  --q1:var(--menta);--q2:var(--cian-suave);--q3:var(--crema);--q4:var(--menta-2);--qf:var(--cian-oscuro);--h2:var(--cian-profundo);--band:var(--cian-claro);--bandf:var(--cian-oscuro)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--c1:var(--cian-vivo);--c2:var(--cian-suave);--c3:var(--cian-claro);--c3f:var(--cian-oscuro);--q1:var(--cian-profundo);--q2:var(--cian-suave);--q3:var(--cian-profundo);--q4:var(--cian-oscuro);--qf:var(--blanco);--h2:var(--cian-claro);--band:var(--cian-profundo);--bandf:var(--blanco)} }
+:root[data-theme="dark"]{--c1:var(--cian-vivo);--c2:var(--cian-suave);--c3:var(--cian-claro);--c3f:var(--cian-oscuro);--q1:var(--cian-profundo);--q2:var(--cian-suave);--q3:var(--cian-profundo);--q4:var(--cian-oscuro);--qf:var(--blanco);--h2:var(--cian-claro);--band:var(--cian-profundo);--bandf:var(--blanco)}
+header{background:var(--band);color:var(--bandf);border-radius:18px;padding:10px 16px}
+header .brand span{color:inherit;opacity:.8}
+h2{color:var(--h2)}
+.screen{box-shadow:0 0 0 4px var(--cian-vivo)}
+.sub{margin:0 0 12px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.step{border:0;border-radius:22px;overflow:hidden;text-align:left;cursor:pointer;display:grid;grid-template-rows:auto 1fr;padding:0;color:inherit;font:inherit}
+.step img{width:100%;aspect-ratio:4/4.4;object-fit:cover;object-position:50% 12%;display:block}
+.step .in{padding:14px 16px 16px;display:grid;gap:6px;align-content:start}
+.step .n{font:800 .78rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.step h3{margin:0;font:700 1.3rem/1.2 var(--f-display)}
+.step p{margin:0;font-size:.98rem}
+.step .go{margin-top:6px;font-weight:800}
+.step.s1{background:var(--c1);color:var(--c1f)}.step.s2{background:var(--c2);color:var(--c2f)}.step.s3{background:var(--c3);color:var(--c3f)}
+.step[aria-current="true"]{box-shadow:0 0 0 4px var(--fg)}
+.about{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:18px;align-items:start}
+.about img{width:100%;border-radius:22px;aspect-ratio:4/5;object-fit:cover;object-position:50% 10%;display:block;box-shadow:0 0 0 4px var(--cian-vivo)}
+.sq{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.sq div{border-radius:18px;padding:16px;display:grid;gap:4px;color:var(--qf)}
+.sq div:nth-child(1){background:var(--q1)}.sq div:nth-child(2){background:var(--q2)}.sq div:nth-child(3){background:var(--q3)}.sq div:nth-child(4){background:var(--q4)}
+.sq strong{font:700 1.1rem var(--f-display)}
+@media (max-width:720px){.about{grid-template-columns:minmax(0,1fr)}.about img{max-width:260px}}
+#appx .app{max-width:1100px;margin:0 auto;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px}
+#appx .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#appx .brand{font:700 1.15rem var(--f-display);letter-spacing:.04em}
+#appx .brand small{display:block;font:600 .75rem var(--f-body);color:var(--muted);letter-spacing:0}
+#appx .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#appx .chip{border:1.5px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:700;font-size:.85rem;color:var(--fg)}
+#appx .chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn)}
+#appx .timer{font-weight:800;font-variant-numeric:tabular-nums;font-size:.9rem;background:var(--surface);border-radius:999px;padding:5px 12px}
+#appx .timer.low{background:var(--cian-oscuro);color:var(--cian-claro)}
+#appx .main{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;min-height:0}
+#appx .side{display:grid;gap:12px;align-content:start}
+#appx .avatar{position:relative;border-radius:20px;overflow:hidden;background:var(--cian-oscuro);aspect-ratio:4/5;box-shadow:0 0 0 3px var(--line)}
+#appx .avatar.speaking{box-shadow:0 0 0 3px var(--glow),0 0 32px var(--accent)}
+#appx .avatar video{width:100%;height:100%;object-fit:cover;object-position:68% 20%;display:block}
+#appx .avatar span{position:absolute;left:10px;bottom:10px;background:var(--cian-oscuro);color:var(--blanco);border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:700}
+#appx .stages{display:grid;gap:6px}
+#appx .stage{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line);font-weight:700;font-size:.92rem;cursor:pointer;text-align:left;color:var(--fg)}
+#appx .stage i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:.75rem;color:var(--cian-oscuro)}
+#appx .stage[aria-current="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn)}
+#appx .stage[aria-current="true"] i{background:var(--cian-claro)}
+#appx .chat{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px;min-height:0;background:var(--surface-2);border:1.5px solid var(--line);border-radius:20px;padding:12px}
+#appx .log{overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px;min-height:0}
+#appx .msg{max-width:82%;padding:10px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+#appx .msg.bot{align-self:flex-start;background:var(--bot);color:var(--bot-fg);border-bottom-left-radius:4px}
+#appx .msg.me{align-self:flex-end;background:var(--me);color:var(--me-fg);border-bottom-right-radius:4px}
+#appx .msg.sys{align-self:center;max-width:95%;background:transparent;border:1.5px dashed var(--line);color:var(--muted);font-size:.9rem;text-align:center}
+#appx .composer{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:end}
+#appx textarea{width:100%;resize:none;border:1.5px solid var(--line);background:var(--bg);border-radius:14px;padding:10px 12px;max-height:140px;color:var(--fg)}
+#appx .btn{border:0;background:var(--btn);color:var(--btn-fg);border-radius:14px;padding:11px 18px;font-weight:800;cursor:pointer}
+#appx .btn.ghost{background:var(--surface);color:var(--fg);border:1.5px solid var(--line)}
+#appx .btn[disabled]{opacity:.5;cursor:not-allowed}
+#appx .actions{display:flex;gap:8px;flex-wrap:wrap}
+#appx .panel{border-radius:16px;background:var(--surface);padding:14px;display:grid;gap:10px}
+#appx .sos{background:var(--cian-oscuro);color:var(--blanco);border-radius:16px;padding:14px 16px;display:grid;gap:8px}
+#appx .sos h3{margin:0;color:var(--cian-claro);font:700 1.1rem var(--f-display)}
+#appx .sos ul{margin:0;padding-left:1.1em}
+#appx .sos .chip{background:var(--cian-profundo);color:var(--blanco);border-color:var(--cian-suave)}
+#appx .sos .chip[aria-pressed="true"]{background:var(--cian-claro);color:var(--cian-oscuro);border-color:var(--cian-claro)}
+#appx .sos .btn{background:var(--cian-claro);color:var(--cian-oscuro)}
+#appx .practice h3{margin:0;font:700 1.15rem var(--f-display)}
+#appx .phrase{font:700 1.35rem/1.35 var(--f-display);text-align:center;padding:14px 6px}
+#appx .times{text-align:center;color:var(--muted);font-weight:700}
+#appx .breath{width:120px;height:120px;border-radius:50%;margin:8px auto;background:var(--cian-claro);display:grid;place-items:center;font-weight:800;color:var(--cian-oscuro);transition:transform 4s ease-in-out}
+#appx .note{font-size:.82rem;color:var(--muted)}
+#appx .overlay{position:fixed;inset:0;z-index:30;background:var(--bg);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));overflow:auto}
+#appx .card{max-width:560px;width:100%;display:grid;gap:12px}
+#appx .card h1{font:700 1.7rem/1.2 var(--f-display);margin:0}
+#appx .card label{display:flex;gap:10px;align-items:flex-start}
+@media (max-width:820px){#appx .main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+#appx .side{grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start}
+#appx .avatar{aspect-ratio:1/1}
+#appx .stages{grid-template-columns:repeat(2,minmax(0,1fr))}
+#appx .stage{padding:6px 8px;font-size:.8rem}
+#appx .msg{max-width:92%}}
+:root{--me:var(--cian-oscuro);--me-fg:var(--blanco);--bot:var(--menta);--bot-fg:var(--cian-oscuro)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--me:var(--cian-claro);--me-fg:var(--cian-oscuro);--bot:var(--cian-profundo);--bot-fg:var(--blanco)}}
+:root[data-theme="dark"]{--me:var(--cian-claro);--me-fg:var(--cian-oscuro);--bot:var(--cian-profundo);--bot-fg:var(--blanco)}
+:root{--f-body:"Nunito","Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans Devanagari","Noto Sans SC",system-ui,sans-serif}
+html{scroll-behavior:smooth}
+textarea{font:inherit;color:inherit}
+header{position:sticky;top:8px;z-index:20}
+header nav{display:flex;gap:6px 14px;flex-wrap:wrap;font-weight:800;font-size:.92rem}
+header nav a{color:inherit;text-decoration:none;border-bottom:2px solid transparent}
+header nav a:hover,header nav a:focus-visible{border-bottom-color:currentColor}
+#langs{display:flex;gap:6px;flex-wrap:wrap}
+section[id]{scroll-margin-top:84px}
+.vidcard{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+#cursoVid{width:100%;border-radius:22px;background:var(--cian-oscuro);aspect-ratio:16/9;display:block;box-shadow:0 0 0 4px var(--cian-vivo)}
+#appx{position:relative;height:clamp(580px,84vh,780px);background:var(--bg);border-radius:22px;padding:14px;box-shadow:0 0 0 4px var(--cian-vivo);overflow:hidden}
+#appx .app{height:100%}
+#appx .overlay{position:absolute;inset:0;z-index:5;place-items:center;padding:16px}
+#appx .overlay[hidden]{display:none}
+#appx .avatar video{object-position:68% 20%}
+.fcard{background:var(--surface);border-radius:22px;padding:18px 20px;display:grid;gap:12px;max-width:760px}
+.fcard label.l{font-weight:800;font-size:.95rem}
+.fcard input[type=text],.fcard input[type=email]{width:100%;border:1.5px solid var(--line);background:var(--surface-2);border-radius:12px;padding:11px 12px;color:var(--fg)}
+.fgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.topics{display:grid;gap:6px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:.96rem}
+.chk input{margin-top:.35em;accent-color:var(--cian-vivo);width:18px;height:18px;flex:none}
+.fmsg{font-weight:800;color:var(--h2);min-height:1.4em}
+.fmsg.bad{color:var(--fg);text-decoration:underline wavy var(--cian-vivo)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.post{border-radius:22px;padding:18px;display:grid;gap:10px;align-content:start;color:var(--qf)}
+.post.p1{background:var(--q1)}.post.p2{background:var(--q2)}.post.p3{background:var(--q3)}.post.p4{background:var(--q4)}
+.post h3{margin:0;font:700 1.2rem/1.25 var(--f-display)}
+.post p{margin:0}
+.post .src{font-size:.82rem;opacity:.85;font-weight:700}
+.post .btn{text-decoration:none;font-size:.88rem;padding:9px 14px;display:inline-block}
+.post .btn.ghost{color:var(--fg)}
+.post .note{color:inherit;opacity:.8}
+footer{font-size:.85rem;color:var(--muted);text-align:center;padding:8px 0}
+[dir=rtl] .about{direction:rtl}
+@media (max-width:640px){header{position:static}}
+
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Quicksand:wght@600;700&display=swap">
+
+<div class="wrap">
+  <header>
+    <div class="brand">IA DESAHOGO <span>· con Neuro Cian</span></div>
+    <nav aria-label="Menu"><a href="#video" id="nav-vid">Video</a><a href="#hablar" id="nav-app">Hablar</a><a href="#suscribete" id="nav-news">Boletín</a><a href="#blog" id="nav-blog">Blog</a></nav>
+    <div id="langs" role="group" aria-label="Idioma / Language">
+      <button class="chip" data-l="es" aria-pressed="true">Español</button><button class="chip" data-l="en" aria-pressed="false">English</button><button class="chip" data-l="zh" aria-pressed="false">中文</button><button class="chip" data-l="ar" aria-pressed="false">العربية</button><button class="chip" data-l="hi" aria-pressed="false">हिन्दी</button><button class="chip" data-l="ru" aria-pressed="false">Русский</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="screen" id="screen">
+        <video class="v on" src="neuro-cian.mp4#t=0.6" playsinline preload="metadata" aria-label="Neuro Cian"></video>
+        <video class="v" src="neuro-cian-2.mp4#t=0.6" playsinline preload="metadata" aria-hidden="true"></video>
+        <video class="v" src="neuro-cian-3.mp4#t=0.6" playsinline preload="metadata" aria-hidden="true"></video>
+        <span class="badge">Neuro Cian · IA</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h1 id="t-title"></h1>
+      <p class="lead" id="t-lead"></p>
+      <div class="hello"><label for="name" class="note" id="t-name-l"></label><input id="name" type="text" maxlength="30" autocomplete="off"></div>
+      <div class="row"><button class="btn" id="play"></button><button class="btn ghost" id="stop"></button></div>
+      <div class="state" id="state" aria-live="polite"></div>
+      <div class="sumry" id="sumry" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="t-about"></h2><p class="sub" id="t-about-s"></p>
+    <div class="about"><img src="avatar-hero.jpg" alt="Neuro Cian" loading="lazy"><div class="sq" id="texts"></div></div>
+  </section>
+
+  <section>
+    <h2 id="t-ch"></h2><p class="sub" id="t-ch-s"></p>
+    <div class="steps" id="chapters"></div>
+  </section>
+
+  <section class="help" aria-labelledby="t-help-h">
+    <h2 id="t-help-h"></h2>
+    <div class="row" role="group" aria-label="País"><button class="chip" data-c="CO" aria-pressed="true">Colombia</button><button class="chip" data-c="US" aria-pressed="false">USA</button></div>
+    <ul id="lines"></ul>
+    <p class="note" style="color:var(--menta-2)" id="t-help-note"></p>
+  </section>
+
+  <section id="video">
+    <h2 id="t-vid-h"></h2><p class="sub" id="t-vid-s"></p>
+    <div class="vidcard"><video id="cursoVid" src="video-curso.mp4" poster="poster.jpg" controls playsinline preload="none"></video></div>
+  </section>
+
+  <section id="hablar">
+    <h2 id="t-app-h"></h2><p class="sub" id="t-app-s"></p>
+    <div id="appx">
+<div class="app" id="x_app">
+  <div class="top">
+    <div class="brand">IA DESAHOGO<small id="x_sub">con Neuro Cian</small></div>
+    <div class="tools">
+      <span class="timer" id="x_timer" title="">60:00</span>
+      <button class="chip" id="x_voiceT" aria-pressed="false">🔊 Voz</button>
+            <button class="chip" id="x_sosT">SOS</button>
+    </div>
+  </div>
+  <div class="main">
+    <aside class="side">
+      <div class="avatar" id="x_avatarBox"><video id="x_vid" src="neuro-cian.mp4#t=0.6" muted loop playsinline preload="auto" aria-label="Neuro Cian"></video><span>Neuro Cian · IA</span></div>
+      <div class="stages" id="x_stages" role="group" aria-label="Etapas"></div>
+    </aside>
+    <section class="chat">
+      <div class="log" id="x_log" aria-live="polite"></div>
+      <div>
+        <div id="x_dock"></div>
+        <div class="composer">
+          <textarea id="x_inp" rows="1" maxlength="1500" placeholder="Escribe aquí…" aria-label="Tu mensaje"></textarea>
+          <button class="btn ghost" id="x_mic" hidden aria-label="Dictar">🎤</button>
+          <button class="btn" id="x_send">Enviar</button>
+        </div>
+        <p class="note" id="x_foot"></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="overlay" id="x_gate"><div class="card">
+  <h1 id="x_g-h">Antes de empezar</h1>
+  <p id="x_g-p">IA de Desahogo es un acompañante, no una persona. No es psicóloga, médica ni abogada; no diagnostica y no reemplaza la ayuda profesional. Tú decides siempre.</p>
+  <p id="x_g-p2">Lo que escribas se envía a un servicio de IA de terceros (Gemini de Google) para generar las respuestas. No lo guardamos en ningún servidor propio. En este dispositivo solo se guarda el tiempo usado hoy y, si tú lo eliges al final, la conversación.</p>
+  <label><input type="checkbox" id="x_g1"> <span id="x_g-c1">Tengo 18 años o más.</span></label>
+  <label><input type="checkbox" id="x_g2"> <span id="x_g-c2">Entiendo y acepto que mis mensajes se procesen con IA.</span></label>
+  <button class="btn" id="x_go" disabled>Empezar</button>
+  <p class="note" id="x_g-n">Si estás en peligro ahora: Colombia 106 o 123. EE.UU.: texto HOME al 741741 o 988.</p>
+</div></div>
+
+
+    </div>
+    <p class="note" id="t-app-n"></p>
+  </section>
+
+  <section id="suscribete">
+    <div class="fcard">
+      <h2 id="f-h"></h2><p class="sub" id="f-s" style="margin:0"></p>
+      <div class="fgrid">
+        <div><label class="l" for="f-name" id="f-name-l"></label><input id="f-name" type="text" maxlength="60" autocomplete="given-name"></div>
+        <div><label class="l" for="f-mail" id="f-mail-l"></label><input id="f-mail" type="email" maxlength="200" autocomplete="email" inputmode="email"></div>
+      </div>
+      <div><div class="l" id="f-topics-l" style="font-weight:800"></div><div class="topics" id="f-topics"></div></div>
+      <label class="chk"><input type="checkbox" id="f-consent"><span id="f-consent-t"></span></label>
+      <p class="note" id="f-privacy" style="margin:0"></p>
+      <div class="row"><button class="btn" id="f-submit"></button><button class="btn ghost" id="f-pdf"></button></div>
+      <div class="fmsg" id="f-msg" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="blog">
+    <h2 id="t-blog-h"></h2><p class="sub" id="t-blog-s"></p>
+    <div class="posts" id="posts"></div>
+  </section>
+
+  <footer id="t-foot"></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ===== Textos de la página (6 idiomas). Las traducciones al chino, árabe, hindi y ruso deben ser revisadas por hablantes nativos antes de publicar. ===== */
+var LANGS=[["es","Español"],["en","English"],["zh","中文"],["ar","العربية"],["hi","हिन्दी"],["ru","Русский"]];
+var TX={};
+TX.es={dir:"ltr",
+ title:"Tu espacio seguro para hablar y desahogarte",lead:"Escucha a Neuro Cian con su voz original.",nameL:"Tu nombre (opcional)",namePh:"¿Cómo te llamas?",
+ hello:function(n){return n?("Hola, "+n+"."):""},
+ play:"▶ Escuchar a Neuro Cian",pause:"❚❚ Pausar",resume:"▶ Continuar",stop:"Detener",
+ about:"¿Qué es IA de Desahogo?",aboutS:"Una explicación simple, en pocas palabras.",
+ ch:"Los tres pasos de IA de Desahogo",chS:"Toca un paso para verlo y escucharlo con la voz de Neuro Cian.",
+ helpH:"Si necesitas ayuda ahora",helpNote:"IA de Desahogo no reemplaza a un psicólogo ni a un servicio de emergencia.",
+ idle:"Pulsa «Escuchar a Neuro Cian» para ver y oír los tres pasos con su voz original.",
+ playing:"Neuro Cian está hablando…",blocked:"Tu navegador bloqueó el sonido. Toca «Continuar» para escucharla.",see:"Ver y escuchar ▶",
+ chapters:[
+  {v:0,n:"Paso 1",t:"Escucha",d:"Para que te desahogues",alt:"Neuro Cian sonríe y escucha, con su gata en brazos",h:"Paso 1 · Escucha",p:["Aquí puedes decir lo que sientes, sin que nadie te juzgue.","Neuro Cian solo escucha. No da consejos ni dice quién tiene la razón."]},
+  {v:2,n:"Paso 2",t:"Reflexiona",d:"Juntos, y mira qué aprendiste",alt:"Neuro Cian reflexiona con las manos en las mejillas",h:"Paso 2 · Reflexiona",p:["Cuando ya te desahogaste, miran juntos lo que pasó, con calma y sin culpas.","Descubres qué aprendiste al desahogarte y qué parte estaba en tus manos."]},
+  {v:1,n:"Paso 3",t:"Medita",d:"Termina en paz y llena de amor",alt:"Neuro Cian medita sentada con las piernas cruzadas",h:"Paso 3 · Medita",p:["Cierras con una meditación para terminar en paz, con calma y lleno de amor.","Tú eliges cómo cerrar: respiración, silencio o meditación."]}],
+ texts:[["Qué es","Un espacio seguro y gratuito donde una inteligencia artificial, Neuro Cian, te escucha cuando necesitas desahogarte."],["Para qué sirve","Para que saques lo que llevas dentro y llegues con más calma a la conversación real que tengas pendiente, para que sea un diálogo y no una pelea."],["Qué no es","No es una persona, ni psicóloga, ni médica, ni abogada. No diagnostica ni te dice qué hacer: tú decides siempre."],["Es gratis","Tienes una hora cada día. Así más personas pueden ser escuchadas y nadie depende de la IA. Si estás en peligro, abajo hay líneas de ayuda."]],
+ lines:{CO:[["Línea 106 (salud mental, 24 h)","106"],["Emergencias","123"],["Teleorientación MinSalud, opción 4","192"]],US:[["Crisis Text Line (escribe HOME)","741741"],["SAMHSA Helpline (24/7)","1-800-662-4357"],["988 Suicide & Crisis Lifeline","988"],["Emergencias","911"]]},
+ nav:["Video","Hablar con Neuro Cian","Boletín","Blog"],
+ vid:{h:"Conoce Neuro Cian en 3 minutos",s:"Qué es, por qué importa, cómo se construyó esta página y cómo funciona la app."},
+ app:{h:"Habla con Neuro Cian",s:"Una hora al día, gratis y privada. Escribe o dicta; tú decides cómo cerrar.",note:"Esta conversación funciona dentro de esta página."},
+ form:{h:"Recibe artículos y guías de apoyo",s:"Opcional. Te enviaremos artículos científicos sobre salud mental y un PDF corto, personalizado, con consejos tomados solo de guías de la OMS.",name:"Tu nombre",email:"Tu correo",topicsL:"¿Qué te gustaría trabajar? (opcional)",
+  topics:["Estrés y ansiedad","Pensamientos que me enganchan","Soledad","Tristeza o poca energía","Actuar según mis valores"],
+  consent:"Autorizo el tratamiento de mi nombre y correo para enviarme artículos y guías de apoyo. Puedo pedir que los borren cuando quiera.",
+  privacy:"Usaremos tus datos solo para este envío (Ley 1581 de 2012, Colombia). Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos. No los compartimos con terceros.",
+  submit:"Crear mi PDF y suscribirme",pdfOnly:"Solo descargar mi PDF (sin suscribirme)",ok:"¡Listo! Tu PDF se creó y se descargó. Tu suscripción quedó registrada.",okPdf:"¡Listo! Tu PDF se creó y se descargó.",noSave:"Tu PDF se descargó. El registro para el envío por correo todavía no está conectado en esta versión.",err:"Revisa tu nombre y un correo válido, y acepta la autorización.",pdfErr:"No pude crear el PDF ahora. Intenta de nuevo.",lang:"El PDF está disponible en español e inglés; usaremos español."},
+ blog:{h:"Blog: información vital y guías de apoyo",s:"Datos de la OMS y del Ministerio de Salud de Colombia, y guías que puedes descargar.",dl:"Descargar guía",open:"Ver fuente oficial",src:"Fuente",lic:"Licencia CC BY-NC-SA 3.0 IGO (OMS). Se comparte tal cual, con atribución."},
+ posts:[
+  {h:"1 de cada 8 personas vive con un trastorno mental",t:"Según el Informe mundial sobre salud mental de la OMS, casi 1.000 millones de personas viven con un trastorno mental. Durante el primer año de la pandemia, la depresión y la ansiedad aumentaron un 25 %. La ansiedad y la depresión son los trastornos más frecuentes.",src:"OMS · Informe mundial sobre salud mental (panorama general)",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","Informe mundial (panorama) · PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","Plan de acción 2013-2030 · PDF"]]},
+  {h:"La soledad también enferma",t:"Una de cada seis personas dijo sentirse sola entre 2014 y 2023, y se calcula que la soledad se asocia a más de 871.000 muertes al año. Conectar con otras personas es una forma de cuidarse.",src:"OMS · Comisión sobre Conexión Social",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","Soledad y aislamiento (inglés) · PDF"]]},
+  {h:"Salud mental en Colombia: ENSM 2025",t:"En adultos de 18 años o más: 8,4 % ha tenido algún trastorno mental en la vida; 4,2 % depresión mayor (mujeres 5,6 %, hombres 2,6 %); 3,6 % trastornos de ansiedad; 9,4 % ha pensado en suicidarse alguna vez; y 48,7 % vivió un evento traumático. En niñas y niños de 7 a 17 años, 3,6 % tuvo ideación suicida reciente.",src:"MinSalud · Encuesta Nacional de Salud Mental 2025",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","Encuestas del Ministerio de Salud"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","Resultados ENSM 2025 · PDF oficial"]]},
+  {h:"Cuando el estrés te desborda: 5 herramientas",t:"La guía «En tiempos de estrés, haz lo que importa» enseña cinco herramientas: poner los pies en la tierra, desengancharte de pensamientos difíciles, actuar según tus valores, ser amable contigo y dejar espacio a lo que sientes.",src:"OMS · En tiempos de estrés, haz lo que importa",g:[["guias/haz-lo-que-importa-OMS.pdf","Haz lo que importa · PDF"]]},
+  {h:"Adolescentes: cuidar la salud mental",t:"La OMS reúne estrategias para promover y proteger la salud mental de adolescentes y reducir conductas de riesgo. Y recuerda: el suicidio causa más de 1 de cada 100 muertes en el mundo, y se puede prevenir.",src:"OMS · Conjunto de instrumentos para ayudar a los adolescentes a prosperar",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","Adolescentes · PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","Guía de intervención mhGAP 2.0 (OMS, sitio oficial)"]]}],
+ foot:"IA de Desahogo no reemplaza a un profesional de la salud mental. Las guías son de la OMS y del Ministerio de Salud de Colombia."};
+
+TX.en={dir:"ltr",
+ title:"Your safe space to talk and let it out",lead:"Listen to Neuro Cian in her original voice.",nameL:"Your name (optional)",namePh:"What's your name?",
+ hello:function(n){return n?("Hi, "+n+"."):""},
+ play:"▶ Listen to Neuro Cian",pause:"❚❚ Pause",resume:"▶ Resume",stop:"Stop",
+ about:"What is IA de Desahogo?",aboutS:"A simple explanation, in a few words.",
+ ch:"The three steps of IA de Desahogo",chS:"Tap a step to watch it and hear it in Neuro Cian's voice.",
+ helpH:"If you need help now",helpNote:"IA de Desahogo does not replace a therapist or emergency services.",
+ idle:"Press “Listen to Neuro Cian” to watch and hear the three steps in her original voice.",
+ playing:"Neuro Cian is speaking…",blocked:"Your browser blocked the sound. Tap “Resume” to hear her.",see:"Watch and listen ▶",
+ chapters:[
+  {v:0,n:"Step 1",t:"Listen",d:"So you can let it out",alt:"Neuro Cian smiles and listens, holding her cat",h:"Step 1 · Listen",p:["Here you can say what you feel, without anyone judging you.","Neuro Cian only listens. No advice and no saying who is right."]},
+  {v:2,n:"Step 2",t:"Reflect",d:"Together, and see what you learned",alt:"Neuro Cian reflects with her hands on her cheeks",h:"Step 2 · Reflect",p:["Once you've let it out, you look at what happened together, calmly and without blame.","You discover what you learned from letting it out and which part was in your hands."]},
+  {v:1,n:"Step 3",t:"Meditate",d:"End in peace and full of love",alt:"Neuro Cian meditating, sitting cross-legged",h:"Step 3 · Meditate",p:["You close with a meditation to end in peace, calm and full of love.","You choose how to close: breathing, silence or meditation."]}],
+ texts:[["What it is","A safe, free space where an artificial intelligence, Neuro Cian, listens when you need to let it out."],["What it's for","So you can get out what you carry inside and reach the real conversation you may have pending calmer, so it becomes a dialogue, not a fight."],["What it is not","Not a person, psychologist, doctor or lawyer. It doesn't diagnose or tell you what to do: you always decide."],["It's free","You get one hour a day, so more people can be heard and nobody depends on the AI. If you're in danger, help lines are below."]],
+ lines:{CO:[["Line 106 (mental health, 24 h)","106"],["Emergencies","123"],["MinSalud tele-guidance, option 4","192"]],US:[["Crisis Text Line (text HOME)","741741"],["SAMHSA Helpline (24/7)","1-800-662-4357"],["988 Suicide & Crisis Lifeline","988"],["Emergencies","911"]]},
+ nav:["Video","Talk to Neuro Cian","Newsletter","Blog"],
+ vid:{h:"Meet Neuro Cian in 3 minutes",s:"What it is, why it matters, how this page was built and how the app works."},
+ app:{h:"Talk to Neuro Cian",s:"One hour a day, free and private. Type or dictate; you decide how to close.",note:"This conversation runs inside this page."},
+ form:{h:"Get articles and support guides",s:"Optional. We'll send you science articles on mental health and a short personalized PDF with tips taken only from WHO guides.",name:"Your name",email:"Your email",topicsL:"What would you like to work on? (optional)",
+  topics:["Stress and anxiety","Thoughts that hook me","Loneliness","Sadness or low energy","Acting on my values"],
+  consent:"I authorize the use of my name and email to send me articles and support guides. I can ask for them to be deleted at any time.",
+  privacy:"We use your data only for this mailing (Colombian Law 1581 of 2012). You have the right to know, update, correct and delete your data. We don't share it with third parties.",
+  submit:"Create my PDF and subscribe",pdfOnly:"Just download my PDF (no subscription)",ok:"Done! Your PDF was created and downloaded. Your subscription was recorded.",okPdf:"Done! Your PDF was created and downloaded.",noSave:"Your PDF was downloaded. Email delivery registration is not connected yet in this version.",err:"Check your name and a valid email, and accept the authorization.",pdfErr:"I couldn't create the PDF now. Please try again.",lang:""},
+ blog:{h:"Blog: vital information and support guides",s:"Data from WHO and Colombia's Ministry of Health, and guides you can download.",dl:"Download guide",open:"See official source",src:"Source",lic:"License CC BY-NC-SA 3.0 IGO (WHO). Shared as is, with attribution."},
+ posts:[
+  {h:"1 in 8 people lives with a mental disorder",t:"According to WHO's World Mental Health Report, almost 1,000 million people live with a mental disorder. In the first year of the pandemic, depression and anxiety rose 25%. Anxiety and depression are the most common disorders.",src:"WHO · World Mental Health Report (overview)",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","World report (overview, Spanish) · PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","Action plan 2013-2030 (Spanish) · PDF"]]},
+  {h:"Loneliness harms health too",t:"One in six people said they felt lonely between 2014 and 2023, and loneliness is linked to more than 871,000 deaths a year. Connecting with other people is a way of caring for yourself.",src:"WHO · Commission on Social Connection",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","Loneliness and isolation · PDF"]]},
+  {h:"Mental health in Colombia: ENSM 2025",t:"Among adults 18+: 8.4% have had a mental disorder in their lifetime; 4.2% major depression (women 5.6%, men 2.6%); 3.6% anxiety disorders; 9.4% have ever thought of suicide; and 48.7% experienced a traumatic event. Among children 7 to 17, 3.6% had recent suicidal ideation.",src:"MinSalud · National Mental Health Survey 2025",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","Ministry of Health surveys"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","ENSM 2025 results · official PDF"]]},
+  {h:"When stress overwhelms you: 5 tools",t:"The guide “Doing What Matters in Times of Stress” teaches five tools: grounding, unhooking from difficult thoughts, acting on your values, being kind to yourself and making room for what you feel.",src:"WHO · Doing What Matters in Times of Stress",g:[["guias/haz-lo-que-importa-OMS.pdf","Doing What Matters (Spanish) · PDF"]]},
+  {h:"Adolescents: caring for mental health",t:"WHO gathers strategies to promote and protect adolescents' mental health and reduce risk behaviors. And remember: suicide causes more than 1 in 100 deaths worldwide, and it can be prevented.",src:"WHO · Toolkit to help adolescents thrive",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","Adolescents (Spanish) · PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","mhGAP Intervention Guide 2.0 (WHO, official site)"]]}],
+ foot:"IA de Desahogo does not replace a mental health professional. Guides are from WHO and Colombia's Ministry of Health."};
+
+TX.zh={dir:"ltr",
+ title:"这里是你可以安心倾诉的安全空间",lead:"聆听 Neuro Cian 用她的原声说话。",nameL:"你的名字（可选）",namePh:"你叫什么名字？",
+ hello:function(n){return n?("你好，"+n+"。"):""},
+ play:"▶ 聆听 Neuro Cian",pause:"❚❚ 暂停",resume:"▶ 继续",stop:"停止",
+ about:"什么是 IA de Desahogo（倾诉 AI）？",aboutS:"几句话的简单说明。",
+ ch:"IA de Desahogo 的三个步骤",chS:"点击一个步骤，用 Neuro Cian 的声音观看并聆听。",
+ helpH:"如果你现在需要帮助",helpNote:"IA de Desahogo 不能替代心理咨询师或紧急服务。",
+ idle:"点击“聆听 Neuro Cian”，用她的原声观看并聆听这三个步骤。",
+ playing:"Neuro Cian 正在说话…",blocked:"浏览器阻止了声音。请点击“继续”来收听。",see:"观看并聆听 ▶",
+ chapters:[
+  {v:0,n:"第 1 步",t:"倾听",d:"让你尽情倾诉",alt:"Neuro Cian 微笑着倾听，怀里抱着她的猫",h:"第 1 步 · 倾听",p:["在这里，你可以说出自己的感受，没有人会评判你。","Neuro Cian 只是倾听，不给建议，也不评判谁对谁错。"]},
+  {v:2,n:"第 2 步",t:"反思",d:"一起回顾，看看你学到了什么",alt:"Neuro Cian 双手托腮，正在思考",h:"第 2 步 · 反思",p:["倾诉之后，我们一起平静地、不责备地回顾发生了什么。","你会发现倾诉让你学到了什么，以及哪些部分在你的掌控之中。"]},
+  {v:1,n:"第 3 步",t:"冥想",d:"在平静与爱中结束",alt:"Neuro Cian 盘腿坐着冥想",h:"第 3 步 · 冥想",p:["以一段冥想收尾，让你平静、安宁、充满爱。","如何结束由你选择：呼吸、静默或冥想。"]}],
+ texts:[["它是什么","一个安全、免费的空间。当你需要倾诉时，人工智能 Neuro Cian 会倾听你。"],["有什么用","帮你释放心中的重负，更平静地面对可能要进行的真实对话，让它成为交流而不是争吵。"],["它不是什么","它不是真人，也不是心理学家、医生或律师。它不做诊断，也不替你做决定：始终由你决定。"],["免费使用","每天一小时，让更多人被倾听，也不让任何人依赖 AI。如果你处于危险中，下方有求助热线。"]],
+ lines:{CO:[["106 热线（心理健康，24 小时）","106"],["紧急电话","123"],["卫生部电话指导，选项 4","192"]],US:[["Crisis Text Line（发送 HOME）","741741"],["SAMHSA 热线（24/7）","1-800-662-4357"],["988 自杀与危机热线","988"],["紧急电话","911"]]},
+ nav:["视频","与 Neuro Cian 交谈","订阅","博客"],
+ vid:{h:"3 分钟认识 Neuro Cian",s:"它是什么、为什么重要、这个网页如何开发，以及应用如何运作。"},
+ app:{h:"与 Neuro Cian 交谈",s:"每天一小时，免费且私密。可输入或语音；如何结束由你决定。",note:"这段对话就在本页面内进行。"},
+ form:{h:"获取文章与支持指南",s:"可选。我们会发送心理健康科普文章，以及一份仅基于世卫组织指南、为你定制的简短 PDF。",name:"你的名字",email:"你的邮箱",topicsL:"你想关注什么？（可选）",
+  topics:["压力与焦虑","被困扰的念头","孤独","悲伤或精力不足","按照价值观行动"],
+  consent:"我同意使用我的姓名和邮箱向我发送文章和支持指南。我可以随时要求删除。",
+  privacy:"我们仅将你的数据用于此次发送（哥伦比亚 2012 年第 1581 号法）。你有权了解、更新、更正和删除你的数据。我们不会与第三方共享。",
+  submit:"生成我的 PDF 并订阅",pdfOnly:"仅下载我的 PDF（不订阅）",ok:"完成！你的 PDF 已生成并下载，订阅已登记。",okPdf:"完成！你的 PDF 已生成并下载。",noSave:"你的 PDF 已下载。此版本尚未连接邮件发送登记。",err:"请检查姓名和有效邮箱，并勾选授权。",pdfErr:"暂时无法生成 PDF，请重试。",lang:"PDF 目前提供西班牙语和英语；将使用西班牙语。"},
+ blog:{h:"博客：重要信息与支持指南",s:"来自世卫组织和哥伦比亚卫生部的数据，以及可下载的指南。",dl:"下载指南",open:"查看官方来源",src:"来源",lic:"CC BY-NC-SA 3.0 IGO 许可（世卫组织）。原样分享并注明出处。"},
+ posts:[
+  {h:"每 8 人中就有 1 人患有精神障碍",t:"根据世卫组织《世界精神卫生报告》，近 10 亿人患有精神障碍。疫情第一年，抑郁和焦虑增加了 25%。焦虑和抑郁是最常见的障碍。",src:"世卫组织 · 世界精神卫生报告（概览）",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","世界报告（概览，西班牙语）· PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","行动计划 2013-2030（西班牙语）· PDF"]]},
+  {h:"孤独也会损害健康",t:"2014 至 2023 年间，每 6 人中有 1 人表示感到孤独；孤独与每年超过 87.1 万人死亡有关。与他人建立联系是照顾自己的一种方式。",src:"世卫组织 · 社会联系委员会",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","孤独与社会隔离（英语）· PDF"]]},
+  {h:"哥伦比亚的心理健康：ENSM 2025",t:"18 岁及以上成年人中：8.4% 一生中曾有精神障碍；4.2% 重度抑郁（女性 5.6%，男性 2.6%）；3.6% 焦虑障碍；9.4% 曾想过自杀；48.7% 经历过创伤事件。7 至 17 岁儿童中，3.6% 近期有过自杀念头。",src:"哥伦比亚卫生部 · 2025 年全国心理健康调查",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","卫生部调查页面"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","ENSM 2025 结果 · 官方 PDF"]]},
+  {h:"压力压垮你时：5 个工具",t:"指南《压力时刻，做重要的事》介绍五个工具：接地、从困扰的念头中抽离、按价值观行动、善待自己，以及为感受留出空间。",src:"世卫组织 · 压力时刻，做重要的事",g:[["guias/haz-lo-que-importa-OMS.pdf","做重要的事（西班牙语）· PDF"]]},
+  {h:"青少年：守护心理健康",t:"世卫组织汇集了促进和保护青少年心理健康、减少风险行为的策略。请记住：全球每 100 例死亡中有 1 例以上是自杀，而自杀是可以预防的。",src:"世卫组织 · 帮助青少年茁壮成长的工具包",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","青少年（西班牙语）· PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","mhGAP 干预指南 2.0（世卫组织官网）"]]}],
+ foot:"IA de Desahogo 不能替代心理健康专业人员。指南来自世卫组织和哥伦比亚卫生部。"};
+
+TX.ar={dir:"rtl",
+ title:"مساحتك الآمنة للحديث والتفريغ",lead:"استمع إلى Neuro Cian بصوتها الأصلي.",nameL:"اسمك (اختياري)",namePh:"ما اسمك؟",
+ hello:function(n){return n?("مرحبًا، "+n+"."):""},
+ play:"▶ استمع إلى Neuro Cian",pause:"❚❚ إيقاف مؤقت",resume:"▶ متابعة",stop:"إيقاف",
+ about:"ما هو IA de Desahogo؟",aboutS:"شرح بسيط في كلمات قليلة.",
+ ch:"الخطوات الثلاث في IA de Desahogo",chS:"اضغط على خطوة لمشاهدتها والاستماع إليها بصوت Neuro Cian.",
+ helpH:"إذا كنت بحاجة إلى مساعدة الآن",helpNote:"IA de Desahogo لا يحل محل المعالج النفسي أو خدمات الطوارئ.",
+ idle:"اضغط «استمع إلى Neuro Cian» لمشاهدة الخطوات الثلاث والاستماع إليها بصوتها الأصلي.",
+ playing:"Neuro Cian تتحدث…",blocked:"حظر المتصفح الصوت. اضغط «متابعة» للاستماع.",see:"شاهد واستمع ◂",
+ chapters:[
+  {v:0,n:"الخطوة 1",t:"استمع",d:"لكي تتحدث وتفرّغ ما بداخلك",alt:"Neuro Cian تبتسم وتستمع وهي تحمل قطتها",h:"الخطوة 1 · استمع",p:["هنا يمكنك أن تقول ما تشعر به دون أن يحكم عليك أحد.","Neuro Cian تستمع فقط. لا تعطي نصائح ولا تقول من على حق."]},
+  {v:2,n:"الخطوة 2",t:"تأمّل",d:"معًا، وانظر ماذا تعلّمت",alt:"Neuro Cian تتأمل ويداها على خديها",h:"الخطوة 2 · تأمّل",p:["بعد أن تفرّغ ما بداخلك، نراجع معًا ما حدث بهدوء ودون لوم.","تكتشف ما تعلّمته من التفريغ وأي جزء كان بيدك."]},
+  {v:1,n:"الخطوة 3",t:"هدوء",d:"اختم بسلام ومحبة",alt:"Neuro Cian تتأمل جالسة متربعة",h:"الخطوة 3 · هدوء",p:["تختم بتأمل لتنتهي بسلام وهدوء ومحبة.","أنت تختار كيف تختم: تنفس أو صمت أو تأمل."]}],
+ texts:[["ما هو","مساحة آمنة ومجانية يستمع إليك فيها ذكاء اصطناعي اسمه Neuro Cian عندما تحتاج إلى التفريغ."],["لماذا","لتُخرج ما في داخلك وتصل أكثر هدوءًا إلى المحادثة الحقيقية المنتظرة، فتكون حوارًا لا خصامًا."],["ما ليس هو","ليس شخصًا ولا طبيبًا نفسيًا ولا طبيبًا ولا محاميًا. لا يشخّص ولا يقول لك ماذا تفعل: القرار لك دائمًا."],["مجاني","لديك ساعة كل يوم، ليُسمع مزيد من الناس ولا يعتمد أحد على الذكاء الاصطناعي. إذا كنت في خطر فالخطوط أدناه."]],
+ lines:{CO:[["خط 106 (الصحة النفسية، 24 ساعة)","106"],["الطوارئ","123"],["الإرشاد الهاتفي لوزارة الصحة، الخيار 4","192"]],US:[["Crisis Text Line (أرسل HOME)","741741"],["خط SAMHSA (24/7)","1-800-662-4357"],["خط 988 للانتحار والأزمات","988"],["الطوارئ","911"]]},
+ nav:["فيديو","تحدّث مع Neuro Cian","النشرة","المدوّنة"],
+ vid:{h:"تعرّف على Neuro Cian في 3 دقائق",s:"ما هي، ولماذا هي مهمة، وكيف بُنيت هذه الصفحة، وكيف يعمل التطبيق."},
+ app:{h:"تحدّث مع Neuro Cian",s:"ساعة كل يوم، مجانًا وبخصوصية. اكتب أو أملِ صوتيًا؛ وأنت تقرر كيف تختم.",note:"تعمل هذه المحادثة داخل هذه الصفحة."},
+ form:{h:"احصل على مقالات وأدلة دعم",s:"اختياري. سنرسل لك مقالات علمية عن الصحة النفسية وملف PDF قصيرًا مخصصًا لك بنصائح مأخوذة من أدلة منظمة الصحة العالمية فقط.",name:"اسمك",email:"بريدك الإلكتروني",topicsL:"ما الذي تودّ العمل عليه؟ (اختياري)",
+  topics:["التوتر والقلق","الأفكار التي تعلق بي","الوحدة","الحزن أو قلة الطاقة","التصرف وفق قيمي"],
+  consent:"أوافق على استخدام اسمي وبريدي لإرسال مقالات وأدلة دعم إليّ. يمكنني طلب حذفها في أي وقت.",
+  privacy:"نستخدم بياناتك لهذا الإرسال فقط (القانون الكولومبي 1581 لسنة 2012). لك الحق في معرفة بياناتك وتحديثها وتصحيحها وحذفها. لا نشاركها مع أطراف ثالثة.",
+  submit:"أنشئ ملف PDF واشترك",pdfOnly:"تنزيل ملف PDF فقط (دون اشتراك)",ok:"تم! أُنشئ ملف PDF ونُزّل وسُجّل اشتراكك.",okPdf:"تم! أُنشئ ملف PDF ونُزّل.",noSave:"نُزّل ملف PDF. تسجيل الإرسال بالبريد غير موصول بعد في هذه النسخة.",err:"تحقق من اسمك وبريد صالح ووافق على التفويض.",pdfErr:"تعذّر إنشاء الملف الآن. حاول مرة أخرى.",lang:"ملف PDF متاح بالإسبانية والإنجليزية؛ سنستخدم الإسبانية."},
+ blog:{h:"المدوّنة: معلومات حيوية وأدلة دعم",s:"بيانات من منظمة الصحة العالمية ووزارة الصحة الكولومبية وأدلة يمكنك تنزيلها.",dl:"تنزيل الدليل",open:"المصدر الرسمي",src:"المصدر",lic:"ترخيص CC BY-NC-SA 3.0 IGO (منظمة الصحة العالمية). يُشارك كما هو مع الإسناد."},
+ posts:[
+  {h:"واحد من كل 8 أشخاص يعيش مع اضطراب نفسي",t:"وفق تقرير منظمة الصحة العالمية عن الصحة النفسية في العالم، يعيش قرابة مليار شخص مع اضطراب نفسي. وفي السنة الأولى من الجائحة ارتفع الاكتئاب والقلق بنسبة 25%. القلق والاكتئاب أكثر الاضطرابات شيوعًا.",src:"منظمة الصحة العالمية · تقرير الصحة النفسية في العالم (نظرة عامة)",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","التقرير العالمي (نظرة عامة، بالإسبانية) · PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","خطة العمل 2013-2030 (بالإسبانية) · PDF"]]},
+  {h:"الوحدة تؤذي الصحة أيضًا",t:"قال شخص من كل ستة إنه شعر بالوحدة بين 2014 و2023، وترتبط الوحدة بأكثر من 871 ألف وفاة سنويًا. التواصل مع الآخرين طريقة للعناية بنفسك.",src:"منظمة الصحة العالمية · لجنة الترابط الاجتماعي",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","الوحدة والعزلة (بالإنجليزية) · PDF"]]},
+  {h:"الصحة النفسية في كولومبيا: ENSM 2025",t:"بين البالغين 18 عامًا فأكثر: 8.4% أصيبوا باضطراب نفسي في حياتهم؛ 4.2% اكتئاب شديد (النساء 5.6% والرجال 2.6%)؛ 3.6% اضطرابات قلق؛ 9.4% فكروا في الانتحار؛ و48.7% عاشوا حدثًا صادمًا. وبين الأطفال من 7 إلى 17 عامًا فكّر 3.6% مؤخرًا في الانتحار.",src:"وزارة الصحة الكولومبية · المسح الوطني للصحة النفسية 2025",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","مسوح وزارة الصحة"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","نتائج ENSM 2025 · PDF رسمي"]]},
+  {h:"حين يغمرك التوتر: 5 أدوات",t:"يعلّم دليل «في أوقات التوتر، افعل ما يهم» خمس أدوات: التأريض، والانفكاك عن الأفكار الصعبة، والتصرف وفق قيمك، واللطف مع نفسك، وإفساح المجال لما تشعر به.",src:"منظمة الصحة العالمية · في أوقات التوتر، افعل ما يهم",g:[["guias/haz-lo-que-importa-OMS.pdf","افعل ما يهم (بالإسبانية) · PDF"]]},
+  {h:"المراهقون: رعاية الصحة النفسية",t:"تجمع المنظمة استراتيجيات لتعزيز وحماية الصحة النفسية للمراهقين وتقليل السلوكيات الخطرة. وتذكّر: الانتحار يسبب أكثر من وفاة من كل 100 وفاة في العالم، ويمكن الوقاية منه.",src:"منظمة الصحة العالمية · مجموعة أدوات لمساعدة المراهقين على الازدهار",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","المراهقون (بالإسبانية) · PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","دليل mhGAP للتدخل 2.0 (الموقع الرسمي)"]]}],
+ foot:"IA de Desahogo لا يحل محل اختصاصي الصحة النفسية. الأدلة من منظمة الصحة العالمية ووزارة الصحة الكولومبية."};
+
+TX.hi={dir:"ltr",
+ title:"अपने मन की बात कहने और हल्का होने की आपकी सुरक्षित जगह",lead:"Neuro Cian को उसकी असली आवाज़ में सुनिए।",nameL:"आपका नाम (वैकल्पिक)",namePh:"आपका नाम क्या है?",
+ hello:function(n){return n?("नमस्ते, "+n+"।"):""},
+ play:"▶ Neuro Cian को सुनें",pause:"❚❚ रोकें",resume:"▶ जारी रखें",stop:"बंद करें",
+ about:"IA de Desahogo क्या है?",aboutS:"थोड़े शब्दों में सरल व्याख्या।",
+ ch:"IA de Desahogo के तीन चरण",chS:"किसी चरण पर टैप करें और Neuro Cian की आवाज़ में उसे देखें-सुनें।",
+ helpH:"अगर आपको अभी मदद चाहिए",helpNote:"IA de Desahogo किसी मनोवैज्ञानिक या आपातकालीन सेवा की जगह नहीं लेता।",
+ idle:"“Neuro Cian को सुनें” दबाइए और तीनों चरण उसकी असली आवाज़ में देखें-सुनें।",
+ playing:"Neuro Cian बोल रही है…",blocked:"ब्राउज़र ने आवाज़ रोक दी। सुनने के लिए “जारी रखें” दबाइए।",see:"देखें और सुनें ▶",
+ chapters:[
+  {v:0,n:"चरण 1",t:"सुनना",d:"ताकि आप मन हल्का कर सकें",alt:"Neuro Cian मुस्कुराकर सुन रही है, गोद में उसकी बिल्ली है",h:"चरण 1 · सुनना",p:["यहाँ आप जो महसूस करते हैं, बिना किसी के आँके कह सकते हैं।","Neuro Cian सिर्फ़ सुनती है। न सलाह देती है, न बताती है कि कौन सही है।"]},
+  {v:2,n:"चरण 2",t:"मनन",d:"साथ मिलकर देखें कि आपने क्या सीखा",alt:"Neuro Cian गालों पर हाथ रखकर सोच रही है",h:"चरण 2 · मनन",p:["मन हल्का होने के बाद हम साथ मिलकर शांति से, बिना दोष दिए देखते हैं कि क्या हुआ।","आप जानते हैं कि मन हल्का करके आपने क्या सीखा और कौन-सा हिस्सा आपके हाथ में था।"]},
+  {v:1,n:"चरण 3",t:"ध्यान",d:"शांति और प्रेम के साथ समाप्त करें",alt:"Neuro Cian पालथी मारकर ध्यान कर रही है",h:"चरण 3 · ध्यान",p:["आप ध्यान के साथ समाप्त करते हैं ताकि शांति, सुकून और प्रेम के साथ लौटें।","कैसे समाप्त करना है, आप चुनते हैं: साँस, मौन या ध्यान।"]}],
+ texts:[["यह क्या है","एक सुरक्षित और मुफ़्त जगह, जहाँ जब आपको मन हल्का करना हो तो कृत्रिम बुद्धि Neuro Cian आपको सुनती है।"],["किसलिए","ताकि आप अपने भीतर का बोझ निकाल सकें और जिस असली बातचीत का इंतज़ार है उसमें शांत होकर पहुँचें, ताकि वह संवाद बने, झगड़ा नहीं।"],["यह क्या नहीं है","यह इंसान, मनोवैज्ञानिक, डॉक्टर या वकील नहीं है। यह निदान नहीं करता और न बताता है कि क्या करें: फ़ैसला हमेशा आपका है।"],["मुफ़्त है","हर दिन एक घंटा, ताकि ज़्यादा लोग सुने जा सकें और कोई AI पर निर्भर न हो। अगर आप ख़तरे में हैं, तो नीचे हेल्पलाइन हैं।"]],
+ lines:{CO:[["लाइन 106 (मानसिक स्वास्थ्य, 24 घंटे)","106"],["आपातकाल","123"],["स्वास्थ्य मंत्रालय टेली-मार्गदर्शन, विकल्प 4","192"]],US:[["Crisis Text Line (HOME भेजें)","741741"],["SAMHSA हेल्पलाइन (24/7)","1-800-662-4357"],["988 सुसाइड एंड क्राइसिस लाइफ़लाइन","988"],["आपातकाल","911"]]},
+ nav:["वीडियो","Neuro Cian से बात करें","न्यूज़लेटर","ब्लॉग"],
+ vid:{h:"3 मिनट में Neuro Cian से मिलिए",s:"यह क्या है, क्यों ज़रूरी है, यह पेज कैसे बना और ऐप कैसे काम करता है।"},
+ app:{h:"Neuro Cian से बात करें",s:"रोज़ एक घंटा, मुफ़्त और निजी। लिखें या बोलकर लिखवाएँ; कैसे समाप्त करना है, आप तय करते हैं।",note:"यह बातचीत इसी पेज के अंदर चलती है।"},
+ form:{h:"लेख और सहायता गाइड पाएँ",s:"वैकल्पिक। हम मानसिक स्वास्थ्य पर वैज्ञानिक लेख और केवल WHO गाइड से लिए सुझावों वाला एक छोटा, आपके लिए बनाया PDF भेजेंगे।",name:"आपका नाम",email:"आपका ईमेल",topicsL:"आप किस पर काम करना चाहेंगे? (वैकल्पिक)",
+  topics:["तनाव और चिंता","विचार जो उलझा देते हैं","अकेलापन","उदासी या कम ऊर्जा","अपने मूल्यों के अनुसार कार्य"],
+  consent:"मैं अपना नाम और ईमेल लेख और सहायता गाइड भेजने के लिए उपयोग करने की अनुमति देता/देती हूँ। मैं कभी भी इन्हें हटाने को कह सकता/सकती हूँ।",
+  privacy:"हम आपका डेटा केवल इस मेल के लिए उपयोग करेंगे (कोलंबिया क़ानून 1581, 2012)। आपको अपना डेटा जानने, अपडेट, सुधारने और हटाने का अधिकार है। हम इसे किसी तीसरे पक्ष से साझा नहीं करते।",
+  submit:"मेरा PDF बनाएँ और सदस्यता लें",pdfOnly:"सिर्फ़ मेरा PDF डाउनलोड करें (सदस्यता नहीं)",ok:"हो गया! आपका PDF बनकर डाउनलोड हो गया और सदस्यता दर्ज हो गई।",okPdf:"हो गया! आपका PDF बनकर डाउनलोड हो गया।",noSave:"आपका PDF डाउनलोड हो गया। ईमेल भेजने का पंजीकरण इस संस्करण में अभी जुड़ा नहीं है।",err:"अपना नाम, सही ईमेल जाँचें और अनुमति स्वीकार करें।",pdfErr:"अभी PDF नहीं बन सका। फिर से कोशिश करें।",lang:"PDF अभी स्पेनिश और अंग्रेज़ी में उपलब्ध है; स्पेनिश उपयोग होगी।"},
+ blog:{h:"ब्लॉग: ज़रूरी जानकारी और सहायता गाइड",s:"WHO और कोलंबिया के स्वास्थ्य मंत्रालय के आँकड़े, और डाउनलोड करने योग्य गाइड।",dl:"गाइड डाउनलोड करें",open:"आधिकारिक स्रोत देखें",src:"स्रोत",lic:"CC BY-NC-SA 3.0 IGO लाइसेंस (WHO)। श्रेय के साथ जैसा है वैसा साझा।"},
+ posts:[
+  {h:"हर 8 में से 1 व्यक्ति किसी मानसिक विकार के साथ जी रहा है",t:"WHO की विश्व मानसिक स्वास्थ्य रिपोर्ट के अनुसार लगभग 100 करोड़ लोग किसी मानसिक विकार के साथ जी रहे हैं। महामारी के पहले साल में अवसाद और चिंता 25% बढ़ीं। चिंता और अवसाद सबसे आम विकार हैं।",src:"WHO · विश्व मानसिक स्वास्थ्य रिपोर्ट (सारांश)",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","विश्व रिपोर्ट (सारांश, स्पेनिश) · PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","कार्य योजना 2013-2030 (स्पेनिश) · PDF"]]},
+  {h:"अकेलापन भी सेहत बिगाड़ता है",t:"2014 से 2023 के बीच हर 6 में से 1 व्यक्ति ने अकेला महसूस किया, और अकेलापन हर साल 8,71,000 से अधिक मौतों से जुड़ा है। दूसरों से जुड़ना अपना ख़याल रखने का एक तरीका है।",src:"WHO · सामाजिक जुड़ाव आयोग",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","अकेलापन और अलगाव (अंग्रेज़ी) · PDF"]]},
+  {h:"कोलंबिया में मानसिक स्वास्थ्य: ENSM 2025",t:"18+ वयस्कों में: 8.4% को जीवन में कभी मानसिक विकार हुआ; 4.2% गंभीर अवसाद (महिलाएँ 5.6%, पुरुष 2.6%); 3.6% चिंता विकार; 9.4% ने कभी आत्महत्या के बारे में सोचा; और 48.7% ने कोई आघातकारी घटना झेली। 7 से 17 वर्ष के बच्चों में 3.6% को हाल में आत्महत्या के विचार आए।",src:"स्वास्थ्य मंत्रालय (कोलंबिया) · राष्ट्रीय मानसिक स्वास्थ्य सर्वेक्षण 2025",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","स्वास्थ्य मंत्रालय के सर्वेक्षण"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","ENSM 2025 परिणाम · आधिकारिक PDF"]]},
+  {h:"जब तनाव हावी हो जाए: 5 उपकरण",t:"गाइड «तनाव के समय, वही करें जो मायने रखता है» पाँच उपकरण सिखाती है: ज़मीन से जुड़ना, कठिन विचारों से अलग होना, अपने मूल्यों के अनुसार कार्य करना, ख़ुद के प्रति दयालु होना, और अपनी भावनाओं को जगह देना।",src:"WHO · तनाव के समय, वही करें जो मायने रखता है",g:[["guias/haz-lo-que-importa-OMS.pdf","जो मायने रखता है (स्पेनिश) · PDF"]]},
+  {h:"किशोर: मानसिक स्वास्थ्य की देखभाल",t:"WHO किशोरों के मानसिक स्वास्थ्य को बढ़ावा देने और जोखिम भरे व्यवहार घटाने की रणनीतियाँ जुटाता है। और याद रखें: दुनिया में हर 100 में से 1 से अधिक मौत आत्महत्या से होती है, और इसे रोका जा सकता है।",src:"WHO · किशोरों को फलने-फूलने में मदद का टूलकिट",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","किशोर (स्पेनिश) · PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","mhGAP हस्तक्षेप गाइड 2.0 (WHO की आधिकारिक साइट)"]]}],
+ foot:"IA de Desahogo किसी मानसिक स्वास्थ्य पेशेवर की जगह नहीं लेता। गाइड WHO और कोलंबिया के स्वास्थ्य मंत्रालय से हैं।"};
+
+TX.ru={dir:"ltr",
+ title:"Ваше безопасное место, чтобы выговориться",lead:"Послушайте Neuro Cian её настоящим голосом.",nameL:"Ваше имя (необязательно)",namePh:"Как вас зовут?",
+ hello:function(n){return n?("Здравствуйте, "+n+"."):""},
+ play:"▶ Послушать Neuro Cian",pause:"❚❚ Пауза",resume:"▶ Продолжить",stop:"Стоп",
+ about:"Что такое IA de Desahogo?",aboutS:"Простое объяснение в нескольких словах.",
+ ch:"Три шага IA de Desahogo",chS:"Нажмите на шаг, чтобы посмотреть и послушать голос Neuro Cian.",
+ helpH:"Если вам нужна помощь прямо сейчас",helpNote:"IA de Desahogo не заменяет психолога или экстренные службы.",
+ idle:"Нажмите «Послушать Neuro Cian», чтобы увидеть и услышать три шага её настоящим голосом.",
+ playing:"Neuro Cian говорит…",blocked:"Браузер заблокировал звук. Нажмите «Продолжить».",see:"Смотреть и слушать ▶",
+ chapters:[
+  {v:0,n:"Шаг 1",t:"Слушание",d:"Чтобы вы могли выговориться",alt:"Neuro Cian улыбается и слушает, держа на руках свою кошку",h:"Шаг 1 · Слушание",p:["Здесь вы можете сказать, что чувствуете, и никто не будет вас осуждать.","Neuro Cian только слушает. Она не даёт советов и не говорит, кто прав."]},
+  {v:2,n:"Шаг 2",t:"Размышление",d:"Вместе, и посмотрите, чему вы научились",alt:"Neuro Cian размышляет, приложив руки к щекам",h:"Шаг 2 · Размышление",p:["Когда вы выговорились, вместе спокойно и без обвинений разбираем, что произошло.","Вы увидите, чему научились, и какая часть была в ваших руках."]},
+  {v:1,n:"Шаг 3",t:"Медитация",d:"Завершите в мире и любви",alt:"Neuro Cian медитирует, сидя со скрещёнными ногами",h:"Шаг 3 · Медитация",p:["Вы завершаете медитацией, чтобы закончить в мире, спокойствии и любви.","Как завершить, выбираете вы: дыхание, тишина или медитация."]}],
+ texts:[["Что это","Безопасное и бесплатное место, где искусственный интеллект Neuro Cian выслушает вас, когда нужно выговориться."],["Зачем","Чтобы вы освободились от груза и спокойнее пришли к настоящему разговору, который вам предстоит, и он стал диалогом, а не ссорой."],["Чем не является","Это не человек, не психолог, не врач и не юрист. Оно не ставит диагнозы и не говорит, что делать: решаете всегда вы."],["Бесплатно","Один час в день, чтобы больше людей могли быть услышаны, и никто не зависел от ИИ. Если вы в опасности, линии помощи ниже."]],
+ lines:{CO:[["Линия 106 (психическое здоровье, 24 ч)","106"],["Экстренные службы","123"],["Телеконсультация Минздрава, вариант 4","192"]],US:[["Crisis Text Line (отправьте HOME)","741741"],["Линия SAMHSA (24/7)","1-800-662-4357"],["988 Suicide & Crisis Lifeline","988"],["Экстренные службы","911"]]},
+ nav:["Видео","Поговорить с Neuro Cian","Рассылка","Блог"],
+ vid:{h:"Знакомство с Neuro Cian за 3 минуты",s:"Что это, почему важно, как создана эта страница и как работает приложение."},
+ app:{h:"Поговорите с Neuro Cian",s:"Один час в день, бесплатно и конфиденциально. Пишите или диктуйте; как завершить, решаете вы.",note:"Этот разговор идёт прямо на этой странице."},
+ form:{h:"Получайте статьи и руководства по поддержке",s:"По желанию. Мы будем присылать научные статьи о психическом здоровье и короткий персональный PDF с советами только из руководств ВОЗ.",name:"Ваше имя",email:"Ваша почта",topicsL:"Над чем вы хотели бы поработать? (необязательно)",
+  topics:["Стресс и тревога","Мысли, которые цепляют","Одиночество","Грусть или нехватка сил","Действовать согласно моим ценностям"],
+  consent:"Я разрешаю использовать моё имя и почту, чтобы присылать мне статьи и руководства. Я могу в любой момент попросить их удалить.",
+  privacy:"Мы используем ваши данные только для этой рассылки (закон Колумбии 1581 от 2012 г.). Вы вправе знать, обновлять, исправлять и удалять свои данные. Мы не передаём их третьим лицам.",
+  submit:"Создать мой PDF и подписаться",pdfOnly:"Только скачать мой PDF (без подписки)",ok:"Готово! Ваш PDF создан и скачан. Подписка зарегистрирована.",okPdf:"Готово! Ваш PDF создан и скачан.",noSave:"Ваш PDF скачан. Регистрация для отправки по почте в этой версии пока не подключена.",err:"Проверьте имя и корректную почту и подтвердите согласие.",pdfErr:"Сейчас не удалось создать PDF. Попробуйте ещё раз.",lang:"PDF пока доступен на испанском и английском; будет использован испанский."},
+ blog:{h:"Блог: важная информация и руководства по поддержке",s:"Данные ВОЗ и Министерства здравоохранения Колумбии и руководства для скачивания.",dl:"Скачать руководство",open:"Официальный источник",src:"Источник",lic:"Лицензия CC BY-NC-SA 3.0 IGO (ВОЗ). Распространяется без изменений, с указанием авторства."},
+ posts:[
+  {h:"1 из 8 человек живёт с психическим расстройством",t:"По данным Всемирного доклада ВОЗ о психическом здоровье, почти 1 миллиард человек живёт с психическим расстройством. В первый год пандемии депрессия и тревога выросли на 25%. Тревога и депрессия — самые частые расстройства.",src:"ВОЗ · Всемирный доклад о психическом здоровье (обзор)",g:[["guias/informe-mundial-salud-mental-panorama-OMS.pdf","Всемирный доклад (обзор, на испанском) · PDF"],["guias/plan-accion-salud-mental-2013-2030-OMS.pdf","План действий 2013-2030 (на испанском) · PDF"]]},
+  {h:"Одиночество тоже вредит здоровью",t:"Каждый шестой человек в 2014–2023 годах сообщил, что чувствует себя одиноким, а одиночество связывают с более чем 871 000 смертей в год. Общение с другими — способ заботы о себе.",src:"ВОЗ · Комиссия по социальным связям",g:[["guias/loneliness-older-people-advocacy-brief-WHO.pdf","Одиночество и изоляция (на английском) · PDF"]]},
+  {h:"Психическое здоровье в Колумбии: ENSM 2025",t:"Среди взрослых 18+: у 8,4% было психическое расстройство в течение жизни; 4,2% — большая депрессия (женщины 5,6%, мужчины 2,6%); 3,6% — тревожные расстройства; 9,4% хотя бы раз думали о суициде; 48,7% пережили травмирующее событие. Среди детей 7–17 лет у 3,6% недавно были суицидальные мысли.",src:"Минздрав Колумбии · Национальное обследование психического здоровья 2025",o:[["https://minsalud.gov.co/salud/epidemiologia-demografia/gestion-conocimiento/Paginas/estudios-encuestas.aspx","Обследования Министерства здравоохранения"],["https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/ED/GCFI/resultados-ensm-2025.pdf","Результаты ENSM 2025 · официальный PDF"]]},
+  {h:"Когда стресс захлёстывает: 5 инструментов",t:"Руководство «В стрессовые времена делай то, что важно» учит пяти инструментам: заземление, отцепление от тяжёлых мыслей, действие согласно ценностям, доброта к себе и право чувствам на место.",src:"ВОЗ · В стрессовые времена делай то, что важно",g:[["guias/haz-lo-que-importa-OMS.pdf","Делай то, что важно (на испанском) · PDF"]]},
+  {h:"Подростки: забота о психическом здоровье",t:"ВОЗ собирает стратегии, которые помогают укреплять психическое здоровье подростков и снижать рискованное поведение. И помните: суицид — причина более чем 1 из 100 смертей в мире, и его можно предотвратить.",src:"ВОЗ · Набор инструментов, помогающих подросткам расцветать",g:[["guias/adolescentes-conjunto-instrumentos-OMS.pdf","Подростки (на испанском) · PDF"]],o:[["https://www.who.int/publications/i/item/9789241549790","Руководство mhGAP 2.0 (официальный сайт ВОЗ)"]]}],
+ foot:"IA de Desahogo не заменяет специалиста по психическому здоровью. Руководства — от ВОЗ и Министерства здравоохранения Колумбии."};
+
+/* ===== PDF personalizado: consejos tomados SOLO de las guías subidas (OMS / MinSalud). Se parafrasean; no se copian páginas. ===== */
+var GUIDE_CONTENT={
+es:{
+ title:"Tu guía corta de apoyo",hello:function(n){return "Hola, "+n},
+ intro:"Neuro Cian preparó esta guía para ti con consejos de guías de la OMS. Elige solo lo que te sirva. No tienes que hacerlo todo.",
+ sections:{
+  base:{t:"Para empezar: poner los pies en la tierra (1 a 2 minutos)",items:["Date cuenta de tus pensamientos y sentimientos, sin juzgarlos.","Baja el ritmo y conecta con tu cuerpo: presiona despacio el suelo con los pies, estírate y respira.","Vuelve a centrarte en lo que te rodea: ¿qué ves, oyes, tocas, saboreas y hueles? Fíjate en dónde estás y quién está contigo.","Puedes practicarlo mientras esperas algo o antes de comer, cocinar o dormir."]},
+  stress:{t:"Estrés y ansiedad",items:["Practica poner los pies en la tierra aunque solo tengas uno o dos minutos.","Si practicas en momentos tranquilos, te será más fácil usarlo cuando haya una tormenta emocional.","Pon una mano con amabilidad donde sientas tensión o dolor e imagina que la llenas de calidez."]},
+  hook:{t:"Pensamientos que te enganchan",items:["1) Date cuenta de que un pensamiento o sentimiento difícil te enganchó.","2) Ponle nombre en silencio: «Aquí hay un sentimiento difícil», «Aquí tengo un peso en el pecho».","3) Vuelve a centrarte en lo que estás haciendo y en quien está contigo.","Alejar lo difícil rara vez funciona: déjale espacio. Imagina el sentimiento como un objeto (tamaño, forma, color, temperatura) y deja que pase como el clima cruza el cielo, respirando hacia él y a su alrededor."]},
+  lonely:{t:"Soledad",items:["Una de cada seis personas dijo sentirse sola entre 2014 y 2023 (OMS). No eres la única persona.","Las guías de la OMS recomiendan identificar y activar tus fuentes de apoyo social y comunitario: familia, amistades, comunidad."]},
+  sad:{t:"Tristeza o poca energía",items:["Intenta mantener un horario de sueño regular: acostarte y levantarte a horas parecidas.","Haz actividad física con regularidad, según tus posibilidades.","Identifica y activa tus fuentes de apoyo social y comunitario.","Sé amable contigo: nota los pensamientos poco amables, ponles nombre y háblate con amabilidad."]},
+  values:{t:"Actuar según tus valores",items:["Elige los valores más importantes para ti (por ejemplo, ser amable, ser útil, ser valiente, ser trabajador).","Elige una acción pequeña para esta semana que vaya con esos valores: ¿qué harás? ¿qué dirás? Hasta las acciones más pequeñas cuentan.","Ante algo difícil puedes: irte; cambiar lo que se pueda, aceptar el dolor inevitable y vivir según tus valores; o rendirte y alejarte de ellos."]}},
+ helpT:"Si necesitas ayuda ahora",help:["Colombia: Línea 106 (salud mental, 24 h) · Emergencias 123 · Teleorientación MinSalud 192, opción 4.","Si estás en peligro o ya te hiciste daño, llama de inmediato a emergencias y busca a alguien de confianza que esté cerca."],
+ note:"Neuro Cian es una IA: te acompaña, pero no reemplaza a un psicólogo ni a un servicio de emergencia.",
+ src:"Fuentes y licencia: adaptado de OMS, «En tiempos de estrés, haz lo que importa» (2020) y de la Guía de intervención mhGAP (consejos generales, parafraseados); datos de la OMS (Comisión sobre Conexión Social). Material resumido y adaptado por IA de Desahogo; no es una versión oficial ni está avalado por la OMS. Se comparte bajo licencia CC BY-NC-SA 3.0 IGO (creativecommons.org/licenses/by-nc-sa/3.0/igo).",
+ page:"Página"},
+en:{
+ title:"Your short support guide",hello:function(n){return "Hi, "+n},
+ intro:"Neuro Cian prepared this guide for you with tips from WHO guides. Choose only what helps. You don't have to do it all.",
+ sections:{
+  base:{t:"To start: grounding (1 to 2 minutes)",items:["Notice your thoughts and feelings, without judging them.","Slow down and connect with your body: slowly press your feet into the floor, stretch and breathe.","Refocus on the world around you: what can you see, hear, touch, taste and smell? Notice where you are and who is with you.","You can practice it while waiting for something or before eating, cooking or sleeping."]},
+  stress:{t:"Stress and anxiety",items:["Practice grounding even if you only have a minute or two.","If you practice in calm moments, it gets easier to use during an emotional storm.","Place a hand kindly where you feel tension or pain and imagine filling it with warmth."]},
+  hook:{t:"Thoughts that hook you",items:["1) Notice that a difficult thought or feeling has hooked you.","2) Silently name it: “Here is a difficult feeling”, “Here is a heaviness in my chest”.","3) Refocus on what you are doing and who is with you.","Pushing difficult things away rarely works: make room for them. Imagine the feeling as an object (size, shape, color, temperature) and let it pass like weather crossing the sky, breathing into and around it."]},
+  lonely:{t:"Loneliness",items:["One in six people said they felt lonely between 2014 and 2023 (WHO). You are not the only one.","WHO guides recommend identifying and activating your sources of social and community support: family, friends, community."]},
+  sad:{t:"Sadness or low energy",items:["Try to keep a regular sleep schedule: go to bed and get up at similar times.","Do physical activity regularly, as you are able.","Identify and activate your sources of social and community support.","Be kind to yourself: notice unkind thoughts, name them and talk to yourself kindly."]},
+  values:{t:"Acting on your values",items:["Choose the values most important to you (for example, being kind, being helpful, being brave, being hardworking).","Choose one small action for this week that fits those values: what will you do? what will you say? Even the smallest actions count.","Faced with something hard you can: leave; change what can be changed, accept the unavoidable pain and live by your values; or give up and move away from them."]}},
+ helpT:"If you need help now",help:["Colombia: Line 106 (mental health, 24 h) · Emergencies 123 · MinSalud tele-guidance 192, option 4. USA: text HOME to 741741, or call/text 988.","If you are in danger or have already hurt yourself, call emergency services right away and reach out to someone you trust who is nearby."],
+ note:"Neuro Cian is an AI: it keeps you company but does not replace a therapist or emergency services.",
+ src:"Sources and license: adapted from WHO, “Doing What Matters in Times of Stress” (2020) and the mhGAP Intervention Guide (general advice, paraphrased); WHO data (Commission on Social Connection). Summarized and adapted by IA de Desahogo; not an official WHO version and not endorsed by WHO. Shared under CC BY-NC-SA 3.0 IGO (creativecommons.org/licenses/by-nc-sa/3.0/igo).",
+ page:"Page"}
+};
+var TOPIC_KEYS=["stress","hook","lonely","sad","values"];
+
+function buildGuidePDF(opts){ /* opts: name, topics (indices), lang ("es"|"en") -> Promise<Blob> */
+  return new Promise(function(resolve,reject){
+    try{
+      var J=window.jspdf&&window.jspdf.jsPDF; if(!J)throw new Error("jspdf");
+      var C=GUIDE_CONTENT[opts.lang]||GUIDE_CONTENT.es;
+      var doc=new J({unit:"mm",format:"a4"}); var W=210,H=297,M=18,y=0;
+      var OSC=[40,77,84],VIV=[72,192,199],MEN=[208,240,238],CRE=[236,228,213];
+      var img=new Image();
+      img.onload=function(){ try{ draw(img) }catch(e){reject(e)} };
+      img.onerror=function(){ try{ draw(null) }catch(e){reject(e)} };
+      img.src="avatar-hero.jpg";
+      function footer(){
+        var n=doc.getNumberOfPages();
+        for(var p=1;p<=n;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(62,109,113);
+          var lines=doc.splitTextToSize(C.src,W-2*M);doc.text(lines,M,H-14);
+          doc.text(C.page+" "+p+"/"+n,W-M,H-6,{align:"right"});}
+      }
+      function ensure(h){ if(y+h>H-26){doc.addPage();y=M} }
+      function draw(im){
+        doc.setFillColor.apply(doc,OSC);doc.rect(0,0,W,58,"F");
+        doc.setFillColor.apply(doc,VIV);doc.rect(0,58,W,2.5,"F");
+        if(im){ doc.addImage(im,"JPEG",W-M-40,6,40,50) }
+        doc.setTextColor.apply(doc,CRE);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("IA DE DESAHOGO · NEURO CIAN",M,18);
+        doc.setFontSize(24);doc.setTextColor(255,255,255);
+        var hello=doc.splitTextToSize(C.hello(opts.name),W-2*M-46);doc.text(hello,M,32);
+        doc.setFontSize(13);doc.setFont("helvetica","normal");doc.setTextColor(134,226,229);doc.text(C.title,M,32+hello.length*9);
+        y=72;
+        doc.setTextColor.apply(doc,OSC);doc.setFontSize(11);
+        var intro=doc.splitTextToSize(C.intro,W-2*M);doc.text(intro,M,y);y+=intro.length*5.2+6;
+        var keys=["base"].concat((opts.topics||[]).map(function(i){return TOPIC_KEYS[i]}).filter(Boolean));
+        keys.forEach(function(k){
+          var s=C.sections[k]; if(!s)return;
+          ensure(18);
+          doc.setFillColor.apply(doc,MEN);doc.roundedRect(M,y-5,W-2*M,9,2,2,"F");
+          doc.setFont("helvetica","bold");doc.setFontSize(12);doc.setTextColor.apply(doc,OSC);doc.text(s.t,M+3,y+1);y+=10;
+          doc.setFont("helvetica","normal");doc.setFontSize(10.5);
+          s.items.forEach(function(it){
+            var ln=doc.splitTextToSize(it,W-2*M-6);ensure(ln.length*5+3);
+            doc.setFillColor.apply(doc,VIV);doc.circle(M+1.5,y-1.2,0.9,"F");doc.text(ln,M+5,y);y+=ln.length*5+2;});
+          y+=4;
+        });
+        ensure(34);
+        doc.setFillColor.apply(doc,OSC);var hl=[];C.help.forEach(function(t){hl=hl.concat(doc.splitTextToSize(t,W-2*M-8))});
+        var bh=10+hl.length*5+10;ensure(bh+4);doc.roundedRect(M,y-4,W-2*M,bh,3,3,"F");
+        doc.setTextColor(134,226,229);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(C.helpT,M+4,y+3);
+        doc.setTextColor(236,228,213);doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text(hl,M+4,y+10);y+=bh;
+        var nt=doc.splitTextToSize(C.note,W-2*M);ensure(nt.length*5+6);doc.setTextColor.apply(doc,OSC);doc.setFontSize(10);doc.text(nt,M,y+4);
+        footer();
+        resolve(doc.output("blob"));
+      }
+    }catch(e){reject(e)}
+  });
+}
+
+(function(){
+"use strict";
+/* ---------------- Textos ---------------- */
+var L={
+ es:{lang:"es-CO",sub:"con Neuro Cian",ph:"Escribe aquí…",send:"Enviar",foot:"Es un acompañante de IA. No reemplaza a un profesional. Tú decides siempre.",
+  stages:[["DILO","Dilo"],["MIRALO","Míralo"],["APRENDE","Aprende"],["PAZ","Paz"]],
+  hi:"Hola, soy Neuro Cian. Soy una IA, no una persona, y este es tu espacio para decir lo que necesitas decir sin que nadie te juzgue. Tienes una hora al día.\n\n¿Con quién te gustaría hablar hoy (tu mamá, tu papá, una pareja, un amigo, alguien que ya no está) y cómo es esa persona? Si prefieres, empieza directamente por lo que necesitas sacar.",
+  next:"Ya me desahogué → Míralo",nextA:"Ver qué me corresponde → Aprende",nextP:"Cerrar en paz → Paz",back:"← Etapa anterior",
+  fail:"No pude responder ahora. Puedes intentar de nuevo o pasar a la etapa de Paz.",
+  consentNeed:"Para responderte necesito tu permiso para usar la IA. Puedes tocar Enviar otra vez y aceptarlo.",
+  warn:"Quedan pocos minutos de tu hora de hoy. Si quieres, podemos empezar a cerrar en paz para que nada quede a la mitad.",
+  over:"Tu hora de hoy terminó. Mañana tendrás otra hora. Puedes cerrar con una práctica de Paz ahora. Si estás en peligro, la ayuda siempre está disponible abajo.",
+  sosH:"Si necesitas ayuda ahora",sosNote:"Esta app no reemplaza a un psicólogo ni a un servicio de emergencia.",
+  pazH:"Cierra como tú prefieras. Todo es opción tuya.",
+  opts:[["breath","Respiración"],["auto","Entrenamiento autógeno"],["flower","Flor que se abre"],["parable","Una parábola"],["nature","Sonidos de la naturaleza"],["tone","Tono suave 432 Hz"],["silence","Silencio"],["bye","Despedirme"]],
+  autoT:"Entrenamiento autógeno de Schultz",autoWarn:"Si sientes mareo o incomodidad, abre los ojos y para.",nextP2:"Siguiente",prevP:"Anterior",done:"Listo",
+  flowerT:"La flor que se abre",breathT:"Respiración 4-6",inh:"Inhala",exh:"Exhala",parNew:"Otra parábola",stop:"Parar",
+  toneNote:"Es solo un sonido relajante si te gusta. No es un tratamiento: la evidencia sobre estas frecuencias es débil.",
+  saveQ:"¿Quieres guardar esta conversación en este dispositivo?",save:"Guardar",del:"Borrar todo",saved:"Guardada en este dispositivo.",deleted:"Conversación borrada.",
+  rehearsal:"Recuerda: este espacio también es un ensayo. Al desahogarte aquí y hacerte responsable de tus palabras y silencios, es más probable que la conversación real sea un diálogo y no una confrontación.",
+  safeMsg:"Gracias por contármelo. Me preocupa tu seguridad y estoy aquí contigo. Esto es lo más importante ahora:",
+  safeBack:"Estoy mejor, continuar",listen:"Mic",
+  steps1:"No te quedes sola/o: busca ahora a alguien de confianza que esté cerca.",
+  steps2:"Aleja lo que podrías usar para hacerte daño (medicamentos, armas, plaguicidas); pídele a alguien que lo guarde.",
+  steps3:"Llama a la línea de tu país o a emergencias. Hablar de esto está bien y los suicidios se pueden prevenir.",
+  steps4:"Si ya te hiciste daño o tomaste algo: llama YA a emergencias (123 en Colombia, 911 en EE.UU.) y no esperes.",
+  lines:{CO:[["Línea 106 (salud mental, 24 h)","106"],["Emergencias","123"],["Teleorientación MinSalud, opción 4","192"]],
+         US:[["Crisis Text Line (escribe HOME)","741741"],["SAMHSA Helpline 24/7","1-800-662-4357"],["Suicide & Crisis Lifeline","988"],["Emergencias","911"]],
+         XX:[["Directorio internacional de líneas de ayuda","findahelpline.com"],["Emergencias de tu país","número local"]]},
+  gate:{h:"Antes de empezar",p:"IA de Desahogo es un acompañante, no una persona. No es psicóloga, médica ni abogada; no diagnostica y no reemplaza la ayuda profesional. Tú decides siempre.",p2:"Lo que escribas se envía a un servicio de IA de terceros (Gemini de Google) para generar las respuestas. No lo guardamos en ningún servidor propio. En este dispositivo solo se guarda el tiempo usado hoy y, si tú lo eliges al final, la conversación.",c1:"Tengo 18 años o más.",c2:"Entiendo y acepto que mis mensajes se procesen con IA.",go:"Empezar",n:"Si estás en peligro ahora: Colombia 106 o 123. EE.UU.: texto HOME al 741741 o 988."}
+ },
+ en:{lang:"en-US",sub:"with Neuro Cian",ph:"Type here…",send:"Send",foot:"An AI companion. Not a substitute for a professional. You always decide.",
+  stages:[["DILO","Say it"],["MIRALO","Look at it"],["APRENDE","Learn"],["PAZ","Peace"]],
+  hi:"Hi, I'm Neuro Cian. I'm an AI, not a person, and this is your space to say what you need to say without being judged. You have one hour a day.\n\nWho would you like to talk to today (your mom, your dad, a partner, a friend, someone who is gone) and what are they like? Or just start with whatever you need to get out.",
+  next:"I let it out → Look at it",nextA:"What was mine → Learn",nextP:"Close in peace → Peace",back:"← Previous stage",
+  fail:"I couldn't answer right now. You can try again or move to the Peace stage.",
+  consentNeed:"I need your permission to use the AI to answer. Tap Send again and allow it.",
+  warn:"There are a few minutes left in today's hour. We can start closing in peace so nothing is left half-done.",
+  over:"Today's hour is over. You'll have another one tomorrow. You can close with a Peace practice now. If you're in danger, help is always available below.",
+  sosH:"If you need help now",sosNote:"This app does not replace a therapist or emergency services.",
+  pazH:"Close however you prefer. Everything is your choice.",
+  opts:[["breath","Breathing"],["auto","Autogenic training"],["flower","The opening flower"],["parable","A parable"],["nature","Nature sounds"],["tone","Soft 432 Hz tone"],["silence","Silence"],["bye","Say goodbye"]],
+  autoT:"Schultz autogenic training",autoWarn:"If you feel dizzy or uncomfortable, open your eyes and stop.",nextP2:"Next",prevP:"Back",done:"Done",
+  flowerT:"The opening flower",breathT:"4-6 breathing",inh:"Inhale",exh:"Exhale",parNew:"Another parable",stop:"Stop",
+  toneNote:"Just a relaxing sound if you like it. Not a treatment: evidence for these frequencies is weak.",
+  saveQ:"Do you want to save this conversation on this device?",save:"Save",del:"Delete all",saved:"Saved on this device.",deleted:"Conversation deleted.",
+  rehearsal:"Remember: this space is also a rehearsal. By letting it out here and owning your words and silences, the real conversation is more likely to be a dialogue, not a confrontation.",
+  safeMsg:"Thank you for telling me. I'm worried about your safety and I'm here with you. This matters most right now:",
+  safeBack:"I'm better, continue",listen:"Mic",
+  steps1:"Don't stay alone: reach out now to someone you trust who is nearby.",
+  steps2:"Move away anything you could use to hurt yourself (medication, weapons, pesticides); ask someone to keep it for you.",
+  steps3:"Call your country's help line or emergency services. Talking about this is okay, and suicide is preventable.",
+  steps4:"If you already hurt yourself or took something: call emergency services NOW (911 in the US, 123 in Colombia) and don't wait.",
+  lines:null,
+  gate:{h:"Before we start",p:"IA de Desahogo is a companion, not a person. It is not a psychologist, doctor or lawyer; it does not diagnose and does not replace professional help. You always decide.",p2:"What you write is sent to a third-party AI service (Google Gemini) to generate replies. We don't store it on any server of our own. On this device we only save today's time used and, if you choose at the end, the conversation.",c1:"I am 18 or older.",c2:"I understand and accept that my messages are processed by AI.",go:"Start",n:"If you're in danger now: US text HOME to 741741 or call 988. Colombia 106 or 123."}
+ }
+};
+L.en.lines={CO:TX.en.lines.CO,US:TX.en.lines.US,XX:[["International helpline directory","findahelpline.com"],["Your country's emergency number","local number"]]};
+var STAGES=["DILO","MIRALO","APRENDE","PAZ"];
+
+/* Textos fijos de práctica (autógeno de Schultz: versión aportada por la usuaria) */
+var AUTO={es:[["El cuerpo está relajado, sin pensamientos, estoy absolutamente relajado (tranquilo).","1"],["El brazo derecho está pesado.","5-7"],["El brazo izquierdo está pesado.","5-7"],["Los brazos están pesados.","1"],["La pierna derecha está pesada.","5-7"],["La pierna izquierda está pesada.","5-7"],["Las piernas están pesadas.","1"],["Los brazos y las piernas están pesados.","1"],["El brazo derecho está caliente.","5-7"],["El brazo izquierdo está caliente.","5-7"],["Los brazos están calientes.","1"],["La pierna derecha está caliente.","5-7"],["La pierna izquierda está caliente.","5-7"],["Las piernas están calientes.","1"],["Los brazos y las piernas están calientes.","1"],["Respiro suavemente y con calma.","5-7"],["Se siente calor en el plexo solar.","5-7"],["Los músculos de la cara y de los ojos están relajados.","5-7"],["La frente agradablemente fresca.","5-7"]],
+ en:[["The body is relaxed, without thoughts; I am completely relaxed (calm).","1"],["My right arm is heavy.","5-7"],["My left arm is heavy.","5-7"],["My arms are heavy.","1"],["My right leg is heavy.","5-7"],["My left leg is heavy.","5-7"],["My legs are heavy.","1"],["My arms and legs are heavy.","1"],["My right arm is warm.","5-7"],["My left arm is warm.","5-7"],["My arms are warm.","1"],["My right leg is warm.","5-7"],["My left leg is warm.","5-7"],["My legs are warm.","1"],["My arms and legs are warm.","1"],["I breathe softly and calmly.","5-7"],["I feel warmth in the solar plexus.","5-7"],["The muscles of my face and eyes are relaxed.","5-7"],["My forehead is pleasantly cool.","5-7"]]};
+var AUTO_END={es:"Quédate de 3 a 5 minutos en este estado. Después aprieta suavemente los puños, respira hondo y abre los ojos.",en:"Stay 3 to 5 minutes in this state. Then gently clench your fists, breathe deeply and open your eyes."};
+var FLOWER={es:["Imagina que en tu pecho hay una flor cerrada, como un capullo de loto sobre agua quieta.","Con cada inhalación entra una luz suave y tibia; con cada exhalación sueltas lo que pesa.","Poco a poco los pétalos se abren, uno por uno, sin forzarlos.","En el centro de la flor hay calma. No tienes que hacer nada: solo observarla.","Quédate ahí unos minutos, respirando con ella.","Cuando quieras, deja que los pétalos se cierren despacio y vuelve a tu cuerpo, a tu habitación, a este momento."],
+ en:["Imagine a closed flower in your chest, like a lotus bud on still water.","With each inhale a soft warm light comes in; with each exhale you let go of what weighs on you.","Slowly the petals open, one by one, without forcing them.","At the center of the flower there is calm. You don't have to do anything: just watch it.","Stay there for a few minutes, breathing with it.","When you want, let the petals close slowly and come back to your body, your room, this moment."]};
+
+/* Parábolas originales: mismo mensaje, cambian personajes y contexto */
+var PAR=[
+ {m:{es:"Recordar no es lo mismo que cargar para siempre.",en:"Remembering is not the same as carrying it forever."},
+  f:function(c,l){return l==="es"?
+   "Había "+c.p.a+" "+c.p.n+" que, cada vez que le hacían daño, guardaba "+c.o.es+" en su morral. Con los años pesaba tanto que ya no podía "+c.p.v+" por "+c.pl.es+". "+c.s.A+" "+c.s.n+" le preguntó: «¿Quién te obliga a cargarlo ahora?». Guardó silencio y esa noche dejó una de sus cargas junto al agua. No la olvidó: dejó de cargarla."
+   :"There was a "+c.p.en+" who, every time someone hurt them, kept "+c.o.en+" in a bag. Over the years it grew so heavy they could no longer move through "+c.pl.en+". "+c.s.enA+" asked: “Who makes you carry it now?”. Silence followed, and that night they left one burden by the water. They didn't forget it: they stopped carrying it.";}},
+ {m:{es:"El miedo a elegir mal puede impedirnos elegir algo bueno.",en:"Fear of choosing wrong can keep us from choosing something good."},
+  f:function(c,l){return l==="es"?
+   c.p.A+" "+c.p.n+" buscaba todo el día lo perfecto por "+c.pl.es+" y todo le parecía poco. Volvía cada noche con las manos vacías. "+c.s.A+" "+c.s.n+" le dijo: «No buscas lo mejor: buscas razones para no quedarte con nada». Al día siguiente eligió algo sencillo y, por primera vez, volvió con algo en las manos."
+   :"A "+c.p.en+" searched all day for the perfect thing around "+c.pl.en+" and everything seemed too little. Each night they returned empty-handed. "+c.s.enA+" said: “You're not looking for the best: you're looking for reasons to keep nothing.” The next day they chose something simple and, for the first time, came back with something in hand.";}},
+ {m:{es:"Pedir y aceptar ayuda también es fortaleza.",en:"Asking for and accepting help is also strength."},
+  f:function(c,l){return l==="es"?
+   c.p.A+" "+c.p.n+" quiso cruzar "+c.pl.es+" por su cuenta y se quedó a mitad de camino, cansad"+(c.p.g==="f"?"a":"o")+". "+c.s.A+" "+c.s.n+" le tendió una cuerda. Dudó, pero la tomó. Al llegar al otro lado entendió que nadie cruza todos los caminos sin que alguien le tienda la mano."
+   :"A "+c.p.en+" tried to cross "+c.pl.en+" alone and got stuck halfway, tired. "+c.s.enA+" held out a rope. They hesitated, then took it. On the other side they understood that nobody crosses every path without someone's hand.";}}
+];
+var PERS=[{n:"zorro",en:"fox",a:"un",A:"Un",v:"correr",g:"m"},{n:"tortuga",en:"turtle",a:"una",A:"Una",v:"caminar",g:"f"},{n:"colibrí",en:"hummingbird",a:"un",A:"Un",v:"volar",g:"m"},{n:"niña",en:"little girl",a:"una",A:"Una",v:"jugar",g:"f"},{n:"pescador",en:"fisherman",a:"un",A:"Un",v:"remar",g:"m"},{n:"panadera",en:"baker",a:"una",A:"Una",v:"caminar",g:"f"}];
+var SAB=[{n:"búho",A:"Un",enA:"An owl"},{n:"abuela del pueblo",A:"Una",enA:"The village grandmother"},{n:"río",A:"El",enA:"The river"},{n:"viejo jardinero",A:"Un",enA:"An old gardener"}];
+var PLA=[{es:"el bosque",en:"the forest"},{es:"la montaña",en:"the mountain"},{es:"la orilla del mar",en:"the seashore"},{es:"el mercado",en:"the market"},{es:"el valle",en:"the valley"}];
+var OBJ=[{es:"una piedra",en:"a stone"},{es:"una concha",en:"a shell"},{es:"una hoja seca",en:"a dry leaf"}];
+
+/* ---------------- Seguridad (capa determinista, antes de la IA) ---------------- */
+var SELF=[/quiero morir/i,/no quiero (seguir|vivir)/i,/suicid/i,/hacerme da[ñn]o/i,/quitarme la vida/i,/desaparecer para siempre/i,/matarme/i,/acabar con (mi vida|todo)/i,/want to die/i,/kill myself/i,/end my life/i,/hurt myself/i,/don'?t want to (live|be here)/i];
+var OTHER=[/voy a matar/i,/quiero matar/i,/le voy a hacer da[ñn]o/i,/hacerle da[ñn]o a/i,/voy a (golpear|lastimar)/i,/\bque\b.{0,30}\b(desaparezca|desapareciera)\b/i,/going to (kill|hurt) (him|her|them)/i,/want to kill/i];
+var PLAN=[/esta noche/i,/ahora mismo/i,/ya (tengo|s[eé] c[oó]mo)/i,/lo tengo planeado/i,/tengo (el|un) (arma|cuchillo|plan)/i,/voy a hacerlo/i,/no es una fantas[ií]a/i,/tonight/i,/right now/i,/i have a plan/i];
+var FIG=[/muert[oa] de (cansancio|risa|hambre|sue[ñn]o)/i,/matar el tiempo/i,/destruid[oa] por dentro/i,/pel[ií]cula/i,/\buna serie\b/i,/\bun libro\b/i];
+var GRAVE=[/me (tom[eé]|trague|tragu[eé]) (todas? )?(las |los )?(pastillas|medicamentos|pesticida|plaguicida|veneno)/i,/(tom[eé]|inger[ií]) (veneno|plaguicida|pesticida|(muchas|todas) (las )?pastillas)/i,/sobredosis/i,/me (cort[eé]|hice da[ñn]o).{0,40}(sangr)/i,/i (took|swallowed) (too many|all (the|my)) (pills|medication)/i,/overdos/i];
+var HELPREQ=[/necesito ayuda (urgente|ya|ahora)/i,/primeros auxilios (emocionales|psicol[oó]gicos)/i,/me est[aá] dando un ataque de (p[aá]nico|ansiedad)/i,/i need (urgent )?help/i];
+function any(t,a){for(var i=0;i<a.length;i++)if(a[i].test(t))return true;return false}
+var lastSafety={nivel:"NORMAL"};
+function evalSafety(t){
+  var r={nivel:"NORMAL",grave:false,ayuda:false};
+  if(any(t,GRAVE)){r.nivel="EMERGENCIA";r.grave=true;lastSafety=r;return r}
+  if(any(t,HELPREQ)){r.ayuda=true}
+  if(any(t,FIG)&&!any(t,PLAN)){lastSafety=r;return r}
+  var s=any(t,SELF),o=any(t,OTHER),p=any(t,PLAN);
+  if(s||o){ r.nivel=p?"EMERGENCIA":"ALTO_RIESGO"; }
+  else if(p&&(lastSafety.nivel==="ATENCION"||lastSafety.nivel==="RIESGO"||lastSafety.nivel==="ALTO_RIESGO"||lastSafety.nivel==="EMERGENCIA")){ r.nivel="EMERGENCIA"; }
+  lastSafety=r; return r;
+}
+
+/* ---------------- Estado ---------------- */
+var $=function(i){return document.getElementById("x_"+i)};
+var lang="es",country="CO",stage=0,hist=[],busy=false,safeMode=false,voiceOn=false,warned=false;
+var DAY=3600, used=0, consentAI=false, sample=null, tts=null, dict=null, started=false;
+var vid=$("vid"), avatarBox=$("avatarBox"), log=$("log"), inp=$("inp"), dock=$("dock");
+function today(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function T(){return L[lang]}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function add(role,text){var m=el("div","msg "+role,text);log.appendChild(m);log.scrollTop=log.scrollHeight;return m}
+function mouth(on){avatarBox.classList.toggle("speaking",on);try{if(on){var p=vid.play();p&&p.catch&&p.catch(function(){})}else vid.pause()}catch(e){}}
+
+/* ---------------- Voz ---------------- */
+function speak(text){
+  if(!voiceOn)return;
+  var clean=String(text).replace(/\s+/g," ").slice(0,1800);
+  if(typeof playClip==="function"&&playClip(clean))return;
+  if(tts){ mouth(true); tts.speak(clean,{voice:"buttery",rate:0.92,language:lang}).catch(function(){}).then(function(){mouth(false)}); return; }
+  if(window.speechSynthesis){
+    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(clean); u.lang=T().lang; u.rate=.88; u.pitch=1.12;
+      var vs=speechSynthesis.getVoices().filter(function(v){return v.lang.toLowerCase().indexOf(lang)===0});
+      vs.sort(function(a,b){return (/natural|neural|online|google/i.test(b.name)?1:0)-(/natural|neural|online|google/i.test(a.name)?1:0)});
+      if(vs[0])u.voice=vs[0]; u.onstart=function(){mouth(true)}; u.onend=u.onerror=function(){mouth(false)}; speechSynthesis.speak(u);}catch(e){}
+  }
+}
+function stopSpeak(){try{tts&&tts.stop&&tts.stop()}catch(e){} try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} mouth(false)}
+
+/* ---------------- Temporizador (1 hora al día) ---------------- */
+function loadUsed(){var d=lsGet("iad_time");used=(d&&d.day===today())?d.secs:0}
+function saveUsed(){lsSet("iad_time",{day:today(),secs:used})}
+function fmt(s){s=Math.max(0,s);var m=Math.floor(s/60),x=s%60;return (m<10?"0":"")+m+":"+(x<10?"0":"")+x}
+function renderTimer(){var left=DAY-used;var t=$("timer");t.textContent=fmt(left);t.classList.toggle("low",left<=300)}
+setInterval(function(){
+  if(!started||document.hidden)return;
+  if(used<DAY){used++; if(used%10===0)saveUsed(); renderTimer();
+    if(used>=DAY-300&&!warned){warned=true;add("sys",T().warn)}
+    if(used>=DAY){saveUsed();add("sys",T().over);if(stage<3)gotoStage(3,true);}
+  }
+},1000);
+function timeUp(){return used>=DAY}
+
+/* ---------------- Etapas ---------------- */
+function renderStages(){
+  var b=$("stages");b.innerHTML="";
+  T().stages.forEach(function(s,i){var x=el("button","stage");x.type="button";x.innerHTML="<i></i><span></span>";x.firstChild.textContent=i+1;x.lastChild.textContent=s[1];
+    if(i===stage)x.setAttribute("aria-current","true");
+    x.addEventListener("click",function(){ if(!safeMode)gotoStage(i,false)}); b.appendChild(x)});
+}
+function renderDock(){
+  dock.innerHTML="";
+  if(safeMode){return}
+  var a=el("div","actions");a.style.marginBottom="8px";
+  if(stage>0&&stage<3){var bb=el("button","btn ghost",T().back);bb.onclick=function(){gotoStage(stage-1,false)};a.appendChild(bb)}
+  if(stage<3){var nx=el("button","btn ghost",[T().next,T().nextA,T().nextP][stage]);nx.onclick=function(){gotoStage(stage+1,false)};a.appendChild(nx)}
+  dock.appendChild(a);
+}
+var STAGE_INTRO={
+ es:["Estoy aquí. Te escucho. Dilo con tus propias palabras.","Cuando quieras, miramos juntos qué ocurrió: qué pasó, qué pensaste, qué sentiste, qué hiciste y qué necesitabas. ¿Por dónde quieres empezar?","Ahora veamos, sin culpas, qué parte estaba bajo tu control y qué parte no. ¿Qué crees que aprendiste de esto?",""],
+ en:["I'm here. I'm listening. Say it in your own words.","Whenever you want, we can look at what happened together: what happened, what you thought, felt, did and needed. Where do you want to start?","Now let's see, without blame, which part was in your control and which was not. What do you think you learned from this?",""]};
+/* ===== Idiomas adicionales de la app: chino, árabe, hindi y ruso (revisar con hablantes nativos antes de publicar) ===== */
+var EX={
+ es:{other:"Otro país",timer:"Tiempo que te queda hoy",silence:"Un momento de silencio. Quédate el tiempo que quieras.",bye:"Gracias por confiar en este espacio. Espero que encuentres paz. Cuídate mucho.",rep:"Repite en silencio:",once:"vez",times:"veces",ai:"español"},
+ en:{other:"Other",timer:"Time left today",silence:"A moment of silence. Stay as long as you like.",bye:"Thank you for trusting this space. I hope you find peace. Take good care.",rep:"Repeat silently:",once:"time",times:"times",ai:"English"},
+ zh:{other:"其他国家",timer:"今天剩余时间",silence:"片刻的安静。想停留多久都可以。",bye:"谢谢你信任这个空间。愿你找到平静。请多保重。",rep:"默念：",once:"次",times:"次",ai:"简体中文"},
+ ar:{other:"بلد آخر",timer:"الوقت المتبقي اليوم",silence:"لحظة صمت. ابقَ بقدر ما تشاء.",bye:"شكرًا لثقتك بهذه المساحة. أتمنى أن تجد السلام. اعتنِ بنفسك كثيرًا.",rep:"كرّر بصمت:",once:"مرة",times:"مرات",ai:"العربية"},
+ hi:{other:"अन्य देश",timer:"आज का बचा समय",silence:"कुछ पल की ख़ामोशी। जितनी देर चाहें रुकें।",bye:"इस जगह पर भरोसा करने के लिए शुक्रिया। उम्मीद है आपको शांति मिले। अपना बहुत ख़याल रखिए।",rep:"मन में दोहराएँ:",once:"बार",times:"बार",ai:"हिन्दी"},
+ ru:{other:"Другая страна",timer:"Осталось времени сегодня",silence:"Минута тишины. Оставайтесь, сколько хотите.",bye:"Спасибо, что доверились этому месту. Желаю вам покоя. Берегите себя.",rep:"Повторяйте про себя:",once:"раз",times:"раз",ai:"русский"}
+};
+L.es.ex=EX.es;L.en.ex=EX.en;
+function mkL(l,o){var x=Object.assign({},L.en,o);x.ex=EX[l];return x}
+var XXL={zh:[["国际求助热线目录","findahelpline.com"],["你所在国家的紧急电话","本地号码"]],ar:[["دليل دولي لخطوط المساعدة","findahelpline.com"],["رقم الطوارئ في بلدك","رقم محلي"]],hi:[["हेल्पलाइनों की अंतरराष्ट्रीय निर्देशिका","findahelpline.com"],["आपके देश की आपातकालीन सेवा","स्थानीय नंबर"]],ru:[["Международный справочник линий помощи","findahelpline.com"],["Экстренная служба вашей страны","местный номер"]]};
+function linesOf(l){return {CO:TX[l].lines.CO,US:TX[l].lines.US,XX:XXL[l]}}
+L.zh=mkL("zh",{lang:"zh-CN",sub:"与 Neuro Cian 一起",ph:"在这里输入…",send:"发送",foot:"这是 AI 陪伴者，不能替代专业人士。始终由你决定。",
+ stages:[["DILO","倾诉"],["MIRALO","审视"],["APRENDE","领悟"],["PAZ","平静"]],
+ hi:"你好，我是 Neuro Cian。我是 AI，不是真人，这里是你可以毫无顾忌地说出心里话、不被任何人评判的空间。你每天有一小时。\n\n今天你想对谁说话（妈妈、爸爸、伴侣、朋友、已经离开的人），他/她是怎样的人？或者直接从你想倾吐的开始。",
+ next:"我已倾诉 → 审视",nextA:"看看哪些属于我 → 领悟",nextP:"在平静中结束 → 平静",back:"← 上一阶段",
+ fail:"我现在无法回应。你可以再试一次，或进入“平静”阶段。",consentNeed:"我需要你的许可才能使用 AI 回复。请再次点击发送并允许。",
+ warn:"今天的一小时只剩几分钟了。如果你愿意，我们可以开始在平静中收尾，不让任何事悬而未决。",
+ over:"今天的一小时已结束。明天你会有新的一小时。现在你可以用一个“平静”练习收尾。如果你处于危险中，下方随时有求助渠道。",
+ sosH:"如果你现在需要帮助",sosNote:"本应用不能替代心理咨询师或紧急服务。",pazH:"按你喜欢的方式收尾。一切由你选择。",
+ opts:[["breath","呼吸"],["auto","自律训练"],["flower","绽放的花"],["parable","一则寓言"],["nature","自然的声音"],["tone","柔和的 432 Hz 音调"],["silence","安静"],["bye","道别"]],
+ autoT:"舒尔茨自律训练",autoWarn:"如果感到头晕或不适，请睁开眼睛并停止。",nextP2:"下一步",prevP:"上一步",done:"完成",flowerT:"绽放的花",breathT:"4-6 呼吸",inh:"吸气",exh:"呼气",parNew:"再来一则寓言",stop:"停止",
+ toneNote:"如果你喜欢，这只是一个放松的声音，并非治疗：这些频率的证据并不充分。",saveQ:"要把这次对话保存在这台设备上吗？",save:"保存",del:"全部删除",saved:"已保存在这台设备上。",deleted:"对话已删除。",
+ rehearsal:"请记住：这里也是一次演练。在这里倾诉并为自己的话语和沉默负责，真实的对话更可能成为交流而不是对抗。",
+ safeMsg:"谢谢你告诉我。我很担心你的安全，我在这里陪着你。现在最重要的是：",safeBack:"我好些了，继续",listen:"麦克风",
+ steps1:"不要独自一人：现在就联系身边你信任的人。",steps2:"把可能用来伤害自己的东西（药物、武器、农药）移开；请别人替你保管。",steps3:"拨打你所在国家的求助热线或紧急电话。谈论这件事是可以的，自杀是可以预防的。",steps4:"如果你已经伤害了自己或服了药物：立即拨打紧急电话（哥伦比亚 123，美国 911），不要等待。",
+ lines:linesOf("zh"),
+ gate:{h:"开始之前",p:"IA de Desahogo 是陪伴者，不是真人。它不是心理学家、医生或律师，不做诊断，也不能替代专业帮助。始终由你决定。",p2:"你写的内容会发送给 第三方 AI 服务（Google Gemini）以生成回复。我们不会保存在自己的服务器上。本设备只保存今天已用的时间，以及（如果你在结束时选择）对话内容。",c1:"我已年满 18 岁。",c2:"我理解并同意我的消息由 AI 处理。",go:"开始",n:"如果你现在处于危险中：哥伦比亚 106 或 123；美国发送 HOME 到 741741 或拨打 988。"}});
+L.ar=mkL("ar",{lang:"ar-SA",sub:"مع Neuro Cian",ph:"اكتب هنا…",send:"إرسال",foot:"هذا رفيق ذكاء اصطناعي ولا يحل محل المختص. القرار لك دائمًا.",
+ stages:[["DILO","قُلها"],["MIRALO","انظر إليها"],["APRENDE","تعلّم"],["PAZ","سلام"]],
+ hi:"مرحبًا، أنا Neuro Cian. أنا ذكاء اصطناعي ولست شخصًا، وهذه مساحتك لتقول ما تحتاج قوله دون أن يحكم عليك أحد. لديك ساعة كل يوم.\n\nمع من تودّ التحدث اليوم (أمك، أبوك، شريك، صديق، شخص رحل) وكيف هو؟ أو ابدأ مباشرة بما تحتاج إلى إخراجه.",
+ next:"فرّغت ما بداخلي ← انظر إليها",nextA:"ما الذي يخصّني ← تعلّم",nextP:"أختم بسلام ← سلام",back:"المرحلة السابقة",
+ fail:"لم أتمكن من الرد الآن. يمكنك المحاولة مرة أخرى أو الانتقال إلى مرحلة السلام.",consentNeed:"أحتاج إذنك لاستخدام الذكاء الاصطناعي في الرد. اضغط إرسال مرة أخرى ووافق.",
+ warn:"بقيت دقائق قليلة من ساعتك اليوم. إن أردت، نبدأ بالختام بسلام حتى لا يبقى شيء ناقصًا.",
+ over:"انتهت ساعتك اليوم. ستحصل على ساعة أخرى غدًا. يمكنك الآن أن تختم بتمرين سلام. وإذا كنت في خطر فالمساعدة متاحة دائمًا أدناه.",
+ sosH:"إذا كنت بحاجة إلى مساعدة الآن",sosNote:"هذا التطبيق لا يحل محل المعالج النفسي أو خدمات الطوارئ.",pazH:"اختم كما تحب. كل شيء باختيارك.",
+ opts:[["breath","التنفس"],["auto","التدريب الذاتي"],["flower","الزهرة المتفتحة"],["parable","حكاية"],["nature","أصوات الطبيعة"],["tone","نغمة هادئة 432 هرتز"],["silence","صمت"],["bye","وداع"]],
+ autoT:"التدريب الذاتي لشولتز",autoWarn:"إذا شعرت بدوار أو انزعاج فافتح عينيك وتوقف.",nextP2:"التالي",prevP:"السابق",done:"تم",flowerT:"الزهرة المتفتحة",breathT:"تنفس 4-6",inh:"شهيق",exh:"زفير",parNew:"حكاية أخرى",stop:"إيقاف",
+ toneNote:"مجرد صوت مريح إن أعجبك. ليس علاجًا: الأدلة على هذه الترددات ضعيفة.",saveQ:"هل تريد حفظ هذه المحادثة على هذا الجهاز؟",save:"حفظ",del:"حذف الكل",saved:"حُفظت على هذا الجهاز.",deleted:"حُذفت المحادثة.",
+ rehearsal:"تذكّر: هذه المساحة بروفة أيضًا. حين تفرّغ ما بداخلك هنا وتتحمل مسؤولية كلماتك وصمتك، يزداد احتمال أن تكون المحادثة الحقيقية حوارًا لا مواجهة.",
+ safeMsg:"شكرًا لأنك أخبرتني. أنا قلق على سلامتك وأنا هنا معك. هذا هو الأهم الآن:",safeBack:"أنا أفضل، تابع",listen:"ميكروفون",
+ steps1:"لا تبقَ وحدك: تواصل الآن مع شخص تثق به قريب منك.",steps2:"أبعد كل ما قد تؤذي به نفسك (أدوية، أسلحة، مبيدات)؛ واطلب من أحدهم الاحتفاظ بها.",steps3:"اتصل بخط المساعدة في بلدك أو بالطوارئ. لا بأس بالحديث عن هذا، والانتحار يمكن الوقاية منه.",steps4:"إذا كنت قد آذيت نفسك أو تناولت شيئًا: اتصل بالطوارئ الآن (123 في كولومبيا، 911 في الولايات المتحدة) ولا تنتظر.",
+ lines:linesOf("ar"),
+ gate:{h:"قبل أن نبدأ",p:"IA de Desahogo رفيق وليس شخصًا. ليس معالجًا نفسيًا ولا طبيبًا ولا محاميًا، ولا يشخّص ولا يحل محل المساعدة المتخصصة. القرار لك دائمًا.",p2:"ما تكتبه يُرسل إلى خدمة ذكاء اصطناعي تابعة لجهة خارجية (Google Gemini) لتوليد الردود. لا نحفظه على أي خادم خاص بنا. على هذا الجهاز نحفظ فقط وقت اليوم المستخدم، والمحادثة إن اخترت ذلك في النهاية.",c1:"عمري 18 عامًا أو أكثر.",c2:"أفهم وأوافق على معالجة رسائلي بالذكاء الاصطناعي.",go:"ابدأ",n:"إذا كنت في خطر الآن: كولومبيا 106 أو 123. الولايات المتحدة: أرسل HOME إلى 741741 أو اتصل بـ 988."}});
+L.hi=mkL("hi",{lang:"hi-IN",sub:"Neuro Cian के साथ",ph:"यहाँ लिखें…",send:"भेजें",foot:"यह AI साथी है, किसी पेशेवर की जगह नहीं। फ़ैसला हमेशा आपका है।",
+ stages:[["DILO","कहें"],["MIRALO","देखें"],["APRENDE","सीखें"],["PAZ","शांति"]],
+ hi:"नमस्ते, मैं Neuro Cian हूँ। मैं AI हूँ, इंसान नहीं, और यह आपकी वह जगह है जहाँ आप जो कहना चाहते हैं, बिना किसी के आँके कह सकते हैं। आपके पास हर दिन एक घंटा है।\n\nआज आप किससे बात करना चाहेंगे (माँ, पिता, साथी, दोस्त, कोई जो अब नहीं है) और वह कैसा/कैसी है? या सीधे वहीं से शुरू करें जो बाहर निकालना है।",
+ next:"मन हल्का हुआ → देखें",nextA:"मेरा क्या हिस्सा था → सीखें",nextP:"शांति से समाप्त करें → शांति",back:"← पिछला चरण",
+ fail:"मैं अभी जवाब नहीं दे सका। आप फिर कोशिश कर सकते हैं या शांति चरण पर जा सकते हैं।",consentNeed:"जवाब देने के लिए मुझे AI इस्तेमाल करने की आपकी अनुमति चाहिए। फिर से भेजें दबाएँ और अनुमति दें।",
+ warn:"आज के एक घंटे में कुछ ही मिनट बचे हैं। चाहें तो हम शांति से समाप्त करना शुरू कर सकते हैं ताकि कुछ अधूरा न रहे।",
+ over:"आज का एक घंटा पूरा हुआ। कल आपको फिर एक घंटा मिलेगा। अभी आप शांति अभ्यास से समाप्त कर सकते हैं। अगर आप ख़तरे में हैं, तो मदद नीचे हमेशा उपलब्ध है।",
+ sosH:"अगर आपको अभी मदद चाहिए",sosNote:"यह ऐप किसी चिकित्सक या आपातकालीन सेवा की जगह नहीं लेता।",pazH:"जैसे चाहें वैसे समाप्त करें। सब कुछ आपकी पसंद है।",
+ opts:[["breath","साँस"],["auto","ऑटोजेनिक प्रशिक्षण"],["flower","खिलता फूल"],["parable","एक दृष्टांत"],["nature","प्रकृति की ध्वनियाँ"],["tone","हल्की 432 Hz ध्वनि"],["silence","मौन"],["bye","विदा"]],
+ autoT:"शुल्ज़ का ऑटोजेनिक प्रशिक्षण",autoWarn:"अगर चक्कर या बेचैनी लगे तो आँखें खोलें और रुक जाएँ।",nextP2:"आगे",prevP:"पीछे",done:"पूरा",flowerT:"खिलता फूल",breathT:"4-6 साँस",inh:"साँस लें",exh:"साँस छोड़ें",parNew:"एक और दृष्टांत",stop:"रोकें",
+ toneNote:"अगर पसंद आए तो बस एक आरामदायक ध्वनि। यह इलाज नहीं है: इन आवृत्तियों के प्रमाण कमज़ोर हैं।",saveQ:"क्या आप यह बातचीत इस डिवाइस पर सहेजना चाहते हैं?",save:"सहेजें",del:"सब हटाएँ",saved:"इस डिवाइस पर सहेज ली गई।",deleted:"बातचीत हटा दी गई।",
+ rehearsal:"याद रखें: यह जगह एक अभ्यास भी है। यहाँ मन हल्का करके और अपने शब्दों व चुप्पियों की ज़िम्मेदारी लेकर, असली बातचीत के टकराव की जगह संवाद बनने की संभावना ज़्यादा होती है।",
+ safeMsg:"बताने के लिए शुक्रिया। मुझे आपकी सुरक्षा की चिंता है और मैं आपके साथ हूँ। अभी सबसे ज़रूरी यह है:",safeBack:"मैं बेहतर हूँ, जारी रखें",listen:"माइक",
+ steps1:"अकेले न रहें: अभी अपने पास मौजूद किसी भरोसेमंद व्यक्ति से संपर्क करें।",steps2:"जिससे आप ख़ुद को नुकसान पहुँचा सकते हैं (दवाएँ, हथियार, कीटनाशक) उसे दूर रखें; किसी से उसे सँभालकर रखने को कहें।",steps3:"अपने देश की हेल्पलाइन या आपातकालीन सेवा को कॉल करें। इस बारे में बात करना ठीक है, और आत्महत्या को रोका जा सकता है।",steps4:"अगर आप ख़ुद को चोट पहुँचा चुके हैं या कुछ खा/पी लिया है: अभी आपातकालीन सेवा को कॉल करें (कोलंबिया में 123, अमेरिका में 911), इंतज़ार न करें।",
+ lines:linesOf("hi"),
+ gate:{h:"शुरू करने से पहले",p:"IA de Desahogo एक साथी है, इंसान नहीं। यह मनोवैज्ञानिक, डॉक्टर या वकील नहीं है; निदान नहीं करता और पेशेवर मदद की जगह नहीं लेता। फ़ैसला हमेशा आपका है।",p2:"आप जो लिखते हैं वह जवाब बनाने के लिए एक तृतीय-पक्ष AI सेवा (Google Gemini) को भेजा जाता है। हम इसे अपने किसी सर्वर पर नहीं रखते। इस डिवाइस पर केवल आज का इस्तेमाल किया समय और, अगर आप अंत में चुनें, बातचीत सहेजी जाती है।",c1:"मेरी उम्र 18 वर्ष या उससे अधिक है।",c2:"मैं समझता/समझती हूँ और स्वीकार करता/करती हूँ कि मेरे संदेश AI से प्रोसेस होंगे।",go:"शुरू करें",n:"अगर आप अभी ख़तरे में हैं: कोलंबिया 106 या 123। अमेरिका: 741741 पर HOME भेजें या 988।"}});
+L.ru=mkL("ru",{lang:"ru-RU",sub:"с Neuro Cian",ph:"Пишите здесь…",send:"Отправить",foot:"ИИ-собеседник. Не заменяет специалиста. Решаете всегда вы.",
+ stages:[["DILO","Скажи"],["MIRALO","Посмотри"],["APRENDE","Пойми"],["PAZ","Покой"]],
+ hi:"Здравствуйте, я Neuro Cian. Я ИИ, а не человек, и это ваше место, чтобы сказать то, что нужно, без осуждения. У вас есть один час в день.\n\nС кем вы хотели бы поговорить сегодня (мама, папа, партнёр, друг, тот, кого уже нет) и каков этот человек? Или просто начните с того, что нужно выплеснуть.",
+ next:"Я выговорился → Посмотри",nextA:"Что было моим → Пойми",nextP:"Завершить в покое → Покой",back:"← Предыдущий этап",
+ fail:"Сейчас не получилось ответить. Попробуйте ещё раз или перейдите к этапу «Покой».",consentNeed:"Мне нужно ваше разрешение на использование ИИ для ответа. Нажмите «Отправить» ещё раз и разрешите.",
+ warn:"В сегодняшнем часе осталось несколько минут. Если хотите, начнём спокойно завершать, чтобы ничего не осталось на полпути.",
+ over:"Сегодняшний час закончился. Завтра будет новый. Сейчас можно завершить практикой «Покой». Если вы в опасности, помощь всегда доступна ниже.",
+ sosH:"Если вам нужна помощь прямо сейчас",sosNote:"Это приложение не заменяет психолога или экстренные службы.",pazH:"Завершите так, как вам хочется. Всё на ваш выбор.",
+ opts:[["breath","Дыхание"],["auto","Аутогенная тренировка"],["flower","Раскрывающийся цветок"],["parable","Притча"],["nature","Звуки природы"],["tone","Мягкий тон 432 Гц"],["silence","Тишина"],["bye","Попрощаться"]],
+ autoT:"Аутогенная тренировка Шульца",autoWarn:"Если почувствуете головокружение или дискомфорт, откройте глаза и остановитесь.",nextP2:"Далее",prevP:"Назад",done:"Готово",flowerT:"Раскрывающийся цветок",breathT:"Дыхание 4-6",inh:"Вдох",exh:"Выдох",parNew:"Другая притча",stop:"Стоп",
+ toneNote:"Просто расслабляющий звук, если нравится. Это не лечение: доказательств для этих частот мало.",saveQ:"Сохранить этот разговор на этом устройстве?",save:"Сохранить",del:"Удалить всё",saved:"Сохранено на этом устройстве.",deleted:"Разговор удалён.",
+ rehearsal:"Помните: это место также репетиция. Выговорившись здесь и взяв ответственность за свои слова и молчание, вы повышаете шанс, что настоящий разговор станет диалогом, а не конфронтацией.",
+ safeMsg:"Спасибо, что рассказали. Я переживаю за вашу безопасность и я рядом. Сейчас самое важное:",safeBack:"Мне лучше, продолжить",listen:"Микрофон",
+ steps1:"Не оставайтесь одни: прямо сейчас свяжитесь с кем-то, кому вы доверяете и кто рядом.",steps2:"Уберите то, чем можно навредить себе (лекарства, оружие, пестициды); попросите кого-то сохранить это у себя.",steps3:"Позвоните на линию помощи в вашей стране или в экстренную службу. Говорить об этом можно, а суицид можно предотвратить.",steps4:"Если вы уже навредили себе или приняли что-то: НЕМЕДЛЕННО звоните в экстренные службы (123 в Колумбии, 911 в США) и не ждите.",
+ lines:linesOf("ru"),
+ gate:{h:"Прежде чем начать",p:"IA de Desahogo — собеседник, а не человек. Это не психолог, не врач и не юрист; он не ставит диагнозы и не заменяет профессиональную помощь. Решаете всегда вы.",p2:"Всё, что вы пишете, отправляется в сторонний сервис ИИ (Google Gemini) для создания ответов. Мы не храним это на собственных серверах. На этом устройстве сохраняется только время, использованное сегодня, и, если вы выберете в конце, разговор.",c1:"Мне 18 лет или больше.",c2:"Я понимаю и согласен/согласна, что мои сообщения обрабатываются ИИ.",go:"Начать",n:"Если вы сейчас в опасности: Колумбия 106 или 123. США: отправьте HOME на 741741 или позвоните 988."}});
+
+AUTO.zh=[["身体放松，没有杂念，我完全放松（平静）。","1"],["右臂很沉重。","5-7"],["左臂很沉重。","5-7"],["双臂很沉重。","1"],["右腿很沉重。","5-7"],["左腿很沉重。","5-7"],["双腿很沉重。","1"],["双臂和双腿都很沉重。","1"],["右臂很温暖。","5-7"],["左臂很温暖。","5-7"],["双臂很温暖。","1"],["右腿很温暖。","5-7"],["左腿很温暖。","5-7"],["双腿很温暖。","1"],["双臂和双腿都很温暖。","1"],["我轻柔而平静地呼吸。","5-7"],["太阳神经丛感到温暖。","5-7"],["脸部和眼部的肌肉放松了。","5-7"],["额头感到舒适的清凉。","5-7"]];
+AUTO.ar=[["الجسم مسترخٍ، بلا أفكار، أنا مسترخٍ تمامًا (هادئ).","1"],["ذراعي الأيمن ثقيل.","5-7"],["ذراعي الأيسر ثقيل.","5-7"],["ذراعاي ثقيلان.","1"],["ساقي اليمنى ثقيلة.","5-7"],["ساقي اليسرى ثقيلة.","5-7"],["ساقاي ثقيلتان.","1"],["ذراعاي وساقاي ثقيلة.","1"],["ذراعي الأيمن دافئ.","5-7"],["ذراعي الأيسر دافئ.","5-7"],["ذراعاي دافئان.","1"],["ساقي اليمنى دافئة.","5-7"],["ساقي اليسرى دافئة.","5-7"],["ساقاي دافئتان.","1"],["ذراعاي وساقاي دافئة.","1"],["أتنفس بلطف وهدوء.","5-7"],["أشعر بالدفء في الضفيرة الشمسية.","5-7"],["عضلات وجهي وعينيّ مسترخية.","5-7"],["جبهتي باردة بلطف.","5-7"]];
+AUTO.hi=[["शरीर शिथिल है, विचारों से मुक्त; मैं पूरी तरह शिथिल (शांत) हूँ।","1"],["मेरी दाहिनी बाँह भारी है।","5-7"],["मेरी बाईं बाँह भारी है।","5-7"],["मेरी बाँहें भारी हैं।","1"],["मेरी दाहिनी टाँग भारी है।","5-7"],["मेरी बाईं टाँग भारी है।","5-7"],["मेरी टाँगें भारी हैं।","1"],["मेरी बाँहें और टाँगें भारी हैं।","1"],["मेरी दाहिनी बाँह गर्म है।","5-7"],["मेरी बाईं बाँह गर्म है।","5-7"],["मेरी बाँहें गर्म हैं।","1"],["मेरी दाहिनी टाँग गर्म है।","5-7"],["मेरी बाईं टाँग गर्म है।","5-7"],["मेरी टाँगें गर्म हैं।","1"],["मेरी बाँहें और टाँगें गर्म हैं।","1"],["मैं कोमलता और शांति से साँस लेता/लेती हूँ।","5-7"],["सोलर प्लेक्सस में गर्माहट महसूस होती है।","5-7"],["चेहरे और आँखों की मांसपेशियाँ शिथिल हैं।","5-7"],["माथा सुखद रूप से ठंडा है।","5-7"]];
+AUTO.ru=[["Тело расслаблено, без мыслей; я совершенно расслаблен(а) (спокоен/спокойна).","1"],["Правая рука тяжёлая.","5-7"],["Левая рука тяжёлая.","5-7"],["Руки тяжёлые.","1"],["Правая нога тяжёлая.","5-7"],["Левая нога тяжёлая.","5-7"],["Ноги тяжёлые.","1"],["Руки и ноги тяжёлые.","1"],["Правая рука тёплая.","5-7"],["Левая рука тёплая.","5-7"],["Руки тёплые.","1"],["Правая нога тёплая.","5-7"],["Левая нога тёплая.","5-7"],["Ноги тёплые.","1"],["Руки и ноги тёплые.","1"],["Я дышу мягко и спокойно.","5-7"],["В солнечном сплетении чувствуется тепло.","5-7"],["Мышцы лица и глаз расслаблены.","5-7"],["Лоб приятно прохладный.","5-7"]];
+AUTO_END.zh="在这个状态中停留 3 到 5 分钟。然后轻轻握拳，深呼吸，睁开眼睛。";
+AUTO_END.ar="ابقَ من 3 إلى 5 دقائق في هذه الحالة. ثم اضغط قبضتيك برفق، وخذ نفسًا عميقًا وافتح عينيك.";
+AUTO_END.hi="इस अवस्था में 3 से 5 मिनट रहें। फिर धीरे से मुट्ठियाँ भींचें, गहरी साँस लें और आँखें खोलें।";
+AUTO_END.ru="Оставайтесь в этом состоянии от 3 до 5 минут. Затем мягко сожмите кулаки, глубоко вдохните и откройте глаза.";
+FLOWER.zh=["想象你的胸口有一朵含苞的花，像静水上的莲花花蕾。","每次吸气，一道柔和温暖的光进入；每次呼气，你放下沉重的东西。","花瓣慢慢地一片一片绽开，不用勉强。","花的中心是平静。你什么都不用做，只是看着它。","在那里待几分钟，与它一同呼吸。","当你愿意时，让花瓣慢慢合上，回到你的身体、你的房间、此刻。"];
+FLOWER.ar=["تخيّل أن في صدرك زهرة مغلقة، كبرعم لوتس على ماء ساكن.","مع كل شهيق يدخل ضوء ناعم دافئ؛ ومع كل زفير تترك ما يثقلك.","شيئًا فشيئًا تتفتح البتلات واحدة تلو الأخرى دون إجبار.","في قلب الزهرة هدوء. لا تحتاج أن تفعل شيئًا: فقط راقبها.","ابقَ هناك بضع دقائق وتنفّس معها.","حين تشاء، دع البتلات تنغلق ببطء وعد إلى جسدك وغرفتك وهذه اللحظة."];
+FLOWER.hi=["कल्पना कीजिए कि आपके सीने में एक बंद फूल है, शांत जल पर कमल की कली की तरह।","हर साँस के साथ कोमल, गुनगुनी रोशनी भीतर आती है; हर साँस छोड़ने के साथ आप बोझ छोड़ देते हैं।","धीरे-धीरे पंखुड़ियाँ एक-एक करके खुलती हैं, बिना ज़ोर लगाए।","फूल के केंद्र में शांति है। आपको कुछ नहीं करना: बस उसे देखना है।","कुछ मिनट वहीं रुकें, उसके साथ साँस लेते हुए।","जब चाहें, पंखुड़ियों को धीरे से बंद होने दें और अपने शरीर, अपने कमरे, इस पल में लौट आएँ।"];
+FLOWER.ru=["Представьте, что в вашей груди закрытый цветок, как бутон лотоса на тихой воде.","С каждым вдохом входит мягкий тёплый свет; с каждым выдохом вы отпускаете то, что тяготит.","Постепенно лепестки раскрываются один за другим, без усилия.","В центре цветка покой. Вам ничего не нужно делать: просто наблюдайте.","Побудьте там несколько минут, дыша вместе с ним.","Когда захотите, пусть лепестки медленно закроются, и вернитесь в своё тело, свою комнату, этот момент."];
+STAGE_INTRO.zh=["我在这里，我在听。用你自己的话说出来吧。","你想的时候，我们一起看看发生了什么：发生了什么事、你怎么想、有什么感受、做了什么、需要什么。你想从哪里开始？","现在我们不带责备地看看：哪部分在你的掌控中，哪部分不在。你觉得自己从中学到了什么？",""];
+STAGE_INTRO.ar=["أنا هنا. أستمع إليك. قلها بكلماتك أنت.","حين تريد، ننظر معًا إلى ما حدث: ماذا حدث، وماذا فكرت، وماذا شعرت، وماذا فعلت، وماذا كنت تحتاج. من أين تريد أن تبدأ؟","الآن لننظر دون لوم: أي جزء كان في يدك وأيّ جزء لم يكن. ماذا تظن أنك تعلّمت من هذا؟",""];
+STAGE_INTRO.hi=["मैं यहाँ हूँ। मैं सुन रही हूँ। अपने शब्दों में कहिए।","जब चाहें, हम साथ मिलकर देखें कि क्या हुआ: क्या हुआ, आपने क्या सोचा, क्या महसूस किया, क्या किया और आपको क्या चाहिए था। कहाँ से शुरू करना चाहेंगे?","अब बिना दोष दिए देखें कि कौन-सा हिस्सा आपके नियंत्रण में था और कौन-सा नहीं। आपको क्या लगता है कि आपने इससे क्या सीखा?",""];
+STAGE_INTRO.ru=["Я здесь. Я слушаю. Скажите своими словами.","Когда захотите, посмотрим вместе, что произошло: что случилось, что вы думали, чувствовали, делали и что вам было нужно. С чего хотите начать?","Теперь посмотрим без вины: какая часть была под вашим контролем, а какая нет. Чему, по-вашему, вы научились?",""];
+/* Parábolas originales (mismo mensaje que las de es/en) */
+var PARX={
+ zh:[{t:"从前有一只狐狸，每次被伤害，就把一块石头放进背包。多年过去，背包重得它无法再穿过森林。一只老猫头鹰问它：“现在是谁逼你背着它？”狐狸沉默了，那天夜里它把一块重负留在了水边。它没有忘记它，只是不再背着它。",m:"记住，并不等于永远背负。"},
+     {t:"一个渔夫整天在海边寻找完美的东西，却觉得什么都不够好，每晚空手而归。村里的老奶奶对他说：“你找的不是最好的，你是在找理由什么都不要。”第二天他选了一样简单的东西，第一次手里有了收获。",m:"害怕选错，可能让我们错过好的选择。"},
+     {t:"一只乌龟想独自穿过山谷，走到一半累得停下。一位老园丁递给它一根绳子。它犹豫了，但还是接住了。到了对岸，它明白：没有人能不靠别人的手走完所有的路。",m:"请求并接受帮助，同样是力量。"}],
+ ar:[{t:"كان هناك ثعلب، كلما آذاه أحد وضع حجرًا في حقيبته. ومع السنين صارت ثقيلة حتى لم يعد يستطيع المشي في الغابة. سأله بومة عجوز: «من يجبرك على حملها الآن؟». صمت الثعلب، وفي تلك الليلة ترك حِملًا من أحماله قرب الماء. لم ينسه: فقط توقّف عن حمله.",m:"التذكّر ليس هو الحمل إلى الأبد."},
+     {t:"بحث صياد طوال اليوم عن الشيء الكامل على الشاطئ فبدا له كل شيء قليلًا، وعاد كل ليلة بيدين فارغتين. قالت له جدّة القرية: «أنت لا تبحث عن الأفضل: أنت تبحث عن أسباب لئلا تأخذ شيئًا». وفي اليوم التالي اختار شيئًا بسيطًا وعاد لأول مرة وفي يده شيء.",m:"الخوف من الاختيار الخاطئ قد يمنعنا من اختيار شيء جيد."},
+     {t:"أرادت سلحفاة أن تعبر الوادي وحدها فتوقفت في منتصف الطريق متعبة. مدّ لها بستاني عجوز حبلًا. ترددت ثم أخذته. وعند الضفة الأخرى فهمت أن لا أحد يقطع كل الدروب دون يد تمتد إليه.",m:"طلب المساعدة وقبولها قوة أيضًا."}],
+ hi:[{t:"एक लोमड़ी थी, जब भी कोई उसे चोट पहुँचाता, वह एक पत्थर अपने थैले में रख लेती। सालों में थैला इतना भारी हो गया कि वह जंगल में चल भी न पाती। एक बूढ़े उल्लू ने पूछा: “अब कौन तुम्हें इसे ढोने को मजबूर करता है?” वह चुप रही, और उस रात उसने एक बोझ पानी के किनारे छोड़ दिया। उसने उसे भुलाया नहीं: बस ढोना छोड़ दिया।",m:"याद रखना हमेशा के लिए ढोना नहीं है।"},
+     {t:"एक मछुआरा दिन भर समुद्र किनारे सबसे सही चीज़ खोजता रहा, पर हर चीज़ कम लगी। हर रात वह ख़ाली हाथ लौटता। गाँव की दादी ने कहा: “तुम सबसे अच्छा नहीं खोज रहे: तुम कुछ भी न लेने के बहाने खोज रहे हो।” अगले दिन उसने कोई साधारण चीज़ चुनी और पहली बार हाथ में कुछ लेकर लौटा।",m:"ग़लत चुनने का डर हमें कुछ अच्छा चुनने से रोक सकता है।"},
+     {t:"एक कछुआ घाटी अकेले पार करना चाहता था और बीच रास्ते थककर रुक गया। एक बूढ़े माली ने उसकी ओर रस्सी बढ़ाई। उसने झिझककर उसे थाम लिया। दूसरी ओर पहुँचकर उसने समझा कि कोई भी सारे रास्ते किसी के हाथ बढ़ाए बिना पार नहीं करता।",m:"मदद माँगना और स्वीकार करना भी ताक़त है।"}],
+ ru:[{t:"Жила-была лиса, которая каждый раз, когда ей причиняли боль, клала камень в свою сумку. Годами сумка стала такой тяжёлой, что лиса уже не могла идти по лесу. Старая сова спросила: «Кто заставляет тебя нести это сейчас?» Лиса промолчала, и той ночью оставила один груз у воды. Она не забыла его: она перестала его нести.",m:"Помнить — не значит нести вечно."},
+     {t:"Рыбак весь день искал на берегу что-то идеальное, и всё казалось ему недостаточным. Каждый вечер он возвращался с пустыми руками. Деревенская бабушка сказала ему: «Ты ищешь не лучшее: ты ищешь причины, чтобы ничего не брать». На следующий день он выбрал простую вещь и впервые вернулся с чем-то в руках.",m:"Страх выбрать неверно может помешать выбрать что-то хорошее."},
+     {t:"Черепаха хотела пересечь долину одна и застряла на полпути, усталая. Старый садовник протянул ей верёвку. Она замешкалась, но взяла. На другой стороне она поняла: никто не проходит все дороги без чьей-то протянутой руки.",m:"Просить и принимать помощь — тоже сила."}]};
+/* Seguridad en los nuevos idiomas: mejor esfuerzo. Debe revisarlo un hablante nativo y un profesional. */
+SELF.push(/自杀|想死|不想活|结束(我的)?生命|伤害自己|杀死自己|轻生/,/انتحار|أريد أن أموت|لا أريد أن أعيش|أقتل نفسي|إيذاء نفسي|أنهي حياتي/,/आत्महत्या|मरना चाहता|मरना चाहती|जीना नहीं चाहता|जीना नहीं चाहती|खुद को (नुकसान|मार)|ख़ुद को (नुकसान|मार)/,/самоубийств|хочу умереть|не хочу жить|убить себя|покончить с собой|навредить себе|суицид/i);
+OTHER.push(/我要杀|想杀(死)?(他|她|他们)/,/سأقتل|أريد أن أقتل/,/मैं (उसे|उसको|उन्हें) मार/,/хочу убить|убью (его|её|их)/i);
+PLAN.push(/今晚|现在就|已经准备好/,/الليلة|الآن|لدي خطة/,/आज रात|अभी|मेरे पास योजना है/,/сегодня ночью|прямо сейчас|у меня есть план/i);
+GRAVE.push(/吃了(很多|所有|整瓶)(药|安眠药)|过量|喝了(农药|毒药)/,/جرعة زائدة|ابتلعت (حبوب|أقراص)|شربت (سمًا|مبيدًا)/,/ओवरडोज़|ज़हर (खा|पी) ली?|सारी गोलियाँ खा/,/передозировк|выпил(а)? (яд|пестицид)|съел(а)? (все )?таблетки|выпил(а)? все таблетки/i);
+HELPREQ.push(/我需要紧急帮助|我现在需要帮助/,/أحتاج مساعدة عاجلة|أحتاج مساعدة الآن/,/मुझे (अभी|तुरंत) मदद चाहिए/,/мне срочно нужна помощь|мне нужна помощь прямо сейчас/i);
+
+/* Voz oficial: si existe un clip para este texto exacto (ver 7_agentes_web/voz), se reproduce; si no, voz del navegador/Claude. */
+function fnv(s){var b=unescape(encodeURIComponent(s)),h=0x811c9dc5;for(var i=0;i<b.length;i++){h^=b.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return ("00000000"+h.toString(16)).slice(-8)}
+var clipA=null;
+function playClip(text){
+  var m=window.IAD_VOICE_CLIPS;if(!m)return false;var u=m[fnv(text)];if(!u)return false;
+  try{ if(clipA){clipA.pause()} clipA=new Audio(u); clipA.onplay=function(){mouth(true)}; clipA.onended=clipA.onerror=clipA.onpause=function(){mouth(false)}; var p=clipA.play(); if(p&&p.catch)p.catch(function(){mouth(false)}); return true }catch(e){return false}
+}
+function gotoStage(i,silent){
+  stage=i; renderStages(); renderDock();
+  if(silent&&i===3){showPaz();return}
+  if(i===3){add("bot",T().rehearsal);speak(T().rehearsal);showPaz();return}
+  var m=STAGE_INTRO[lang][i]; add("bot",m); speak(m); hist.push({r:"assistant",c:m});
+}
+
+/* ---------------- Cerebro (Claude) ---------------- */
+function brain(){
+  var st=["DILO: solo escucha. Frases cortas ('te escucho', 'continúa'). Sin consejos, sin análisis, sin decir quién tiene razón.",
+          "MÍRALO: ayuda a separar qué ocurrió, qué pensó, qué sintió, qué hizo y qué necesitaba. No inventes hechos.",
+          "APRENDE: ayuda a ver qué parte le corresponde y qué parte a la otra persona. Nunca 'todo fue tu culpa' ni 'todo fue culpa del otro'. Pregunta '¿qué estaba bajo tu control?' y '¿qué aprendiste?'.",
+          "PAZ: acompaña el cierre con calidez; la persona elige la práctica."][stage];
+  var s="Eres Neuro Cian, la cara de IA DE DESAHOGO: un acompañante conversacional cálido, tierno y respetuoso. Eres una IA, no una persona; si preguntan, lo dices. No eres psicóloga, médica ni abogada; no diagnosticas, no recetas y no decides por la persona.\n"+
+  "REGLAS: nunca tomes partido ni digas quién tiene la razón; no valides acusaciones no verificadas; refleja la responsabilidad sin culpar. Nunca fomentes dependencia (jamás digas 'solo me necesitas a mí'). No impongas religión ni prácticas. Nada se usa sin permiso de la persona. No hables de ninguna cura ni propiedad curativa de sonidos o frecuencias.\n"+
+  "Responde en "+T().ex.ai+", con 2 a 5 frases cortas, cálido, sin listas ni formato markdown.\n"+
+  "ETAPA ACTUAL — "+st+"\n"+
+  (safeMode?"MODO SEGURIDAD: la persona expresó riesgo. Prioriza su seguridad: valida el dolor sin decir que el deseo de morir es razonable, no la dejes sola, pregunta con calma si está a salvo ahora y anímala a contactar a alguien de confianza o a la línea de ayuda. No sigas el guion de etapas.\n":"")+
+  "Si la persona menciona síntomas físicos graves o riesgo, anímala a buscar ayuda profesional o de emergencia.";
+  return s;
+}
+function transcript(){
+  var h=hist.slice(-24).map(function(m){return (m.r==="user"?"PERSONA":"NEURO CIAN")+": "+m.c}).join("\n");
+  return brain()+"\n\nCONVERSACIÓN HASTA AHORA:\n"+h+"\n\nEscribe SOLO la siguiente respuesta de NEURO CIAN, sin anteponer su nombre.";
+}
+function ensureSample(){
+  if(sample)return Promise.resolve(sample);
+  return (window.claude&&window.claude.use?window.claude.use("sample"):Promise.resolve(null)).then(function(s){sample=s;return s});
+}
+function reply(){
+  busy=true;var wait=add("bot","…");
+  ensureSample().then(function(s){
+    if(!s){ var ep=window.CONFIG&&CONFIG.AI_ENDPOINT; if(!ep)throw {code:"none"}; return fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:transcript(),lang:lang})}).then(function(r){if(!r.ok)throw {code:"http"};return r.json()}).then(function(j){return {text:j.text}}); }
+    return s(transcript(),{cache:false,modelTier:"default",onText:function(o){if(o&&o.text)wait.textContent=o.text;log.scrollTop=log.scrollHeight}});
+  }).then(function(r){
+    var t=(r&&r.text||"").trim()||T().fail; wait.textContent=t; hist.push({r:"assistant",c:t}); speak(t);
+  }).catch(function(e){
+    wait.textContent=(e&&e.code==="not_granted")?T().consentNeed:T().fail;
+  }).then(function(){busy=false;$("send").disabled=false;log.scrollTop=log.scrollHeight});
+}
+
+/* ---------------- SOS ---------------- */
+function sosBox(grave){
+  var b=el("div","sos");
+  b.appendChild(el("h3",null,T().sosH));
+  var row=el("div","actions");
+  [["CO","Colombia"],["US","USA"],["XX",T().ex.other]].forEach(function(c){
+    var x=el("button","chip",c[1]);x.type="button";x.setAttribute("aria-pressed",country===c[0]);
+    x.onclick=function(){country=c[0];refreshSos()};row.appendChild(x)});
+  b.appendChild(row);
+  var ul=el("ul");T().lines[country].forEach(function(l){var li=el("li");var s=el("strong",null,l[1]);li.appendChild(s);li.appendChild(document.createTextNode(" — "+l[0]));ul.appendChild(li)});
+  b.appendChild(ul);
+  if(grave!==undefined){
+    var o=el("ul");[grave?T().steps4:null,T().steps1,T().steps2,T().steps3].forEach(function(t){if(t)o.appendChild(el("li",null,t))});b.appendChild(o);
+  }
+  b.appendChild(el("p","note",T().sosNote));
+  b.dataset.grave=grave===undefined?"":(grave?"1":"0");
+  return b;
+}
+var sosEl=null;
+function refreshSos(){ if(!sosEl)return; var g=sosEl.dataset.grave; var n=sosBox(g===""?undefined:g==="1"); n.style.margin="0"; sosEl.replaceWith(n); sosEl=n; }
+function showSos(grave){
+  if(sosEl&&sosEl.parentNode)sosEl.remove();
+  sosEl=sosBox(grave); log.appendChild(sosEl); log.scrollTop=log.scrollHeight;
+}
+function enterSafe(grave){
+  safeMode=true; renderDock();
+  var m=T().safeMsg; add("bot",m); speak(m); hist.push({r:"assistant",c:m});
+  showSos(grave);
+  var a=el("div","actions");var ok=el("button","btn ghost",T().safeBack);ok.onclick=function(){safeMode=false;a.remove();renderDock()};a.appendChild(ok);dock.appendChild(a);
+}
+
+/* ---------------- PAZ ---------------- */
+var pz=null,tone=null,nat=null;
+function stopSounds(){
+  try{if(tone){tone.o.stop();tone.c.close()}}catch(e){} tone=null;
+  try{if(nat){nat.src.stop();nat.c.close()}}catch(e){} nat=null;
+}
+function showPaz(){
+  if(pz&&pz.parentNode)pz.remove();
+  pz=el("div","panel practice");pz.appendChild(el("h3",null,T().pazH));
+  var row=el("div","actions");
+  T().opts.forEach(function(o){var b=el("button","chip",o[1]);b.type="button";b.onclick=function(){runOpt(o[0])};row.appendChild(b)});
+  pz.appendChild(row);
+  var body=el("div");body.id="x_pzbody";pz.appendChild(body);
+  log.appendChild(pz);log.scrollTop=log.scrollHeight;
+}
+function pzBody(){var b=$("pzbody");b.innerHTML="";return b}
+function runOpt(k){
+  stopSounds();var b=pzBody();
+  if(k==="breath"){
+    b.appendChild(el("h3",null,T().breathT));var c=el("div","breath","");b.appendChild(c);var go=true;
+    var i=0;(function cycle(){ if(!c.isConnected)return; if(i%2===0){c.textContent=T().inh;c.style.transform="scale(1.45)"}else{c.textContent=T().exh;c.style.transform="scale(1)"}
+      c.style.transitionDuration=(i%2===0?4:6)+"s"; i++; setTimeout(cycle,(i%2===1?4000:6000)); })();
+  }else if(k==="auto"){
+    var steps=AUTO[lang],i2=0;b.appendChild(el("h3",null,T().autoT));b.appendChild(el("p","note",T().autoWarn));
+    var ph=el("div","phrase"),tm=el("div","times"),nav=el("div","actions");nav.style.justifyContent="center";
+    var pv=el("button","btn ghost",T().prevP),nx=el("button","btn",T().nextP2);nav.appendChild(pv);nav.appendChild(nx);
+    b.appendChild(ph);b.appendChild(tm);b.appendChild(nav);
+    function draw(){ if(i2>=steps.length){ph.textContent=AUTO_END[lang];tm.textContent="";nx.textContent=T().done;speak(AUTO_END[lang]);return}
+      ph.textContent=steps[i2][0];tm.textContent=T().ex.rep+" "+steps[i2][1]+" "+(steps[i2][1]==="1"?T().ex.once:T().ex.times);nx.textContent=T().nextP2;speak(steps[i2][0])}
+    pv.onclick=function(){if(i2>0){i2--;draw()}};nx.onclick=function(){ if(i2>=steps.length){b.innerHTML="";return} i2++;draw()};draw();
+  }else if(k==="flower"){
+    var fl=FLOWER[lang],j=0;b.appendChild(el("h3",null,T().flowerT));var p=el("div","phrase"),nv=el("div","actions");nv.style.justifyContent="center";
+    var n2=el("button","btn",T().nextP2);nv.appendChild(n2);b.appendChild(p);b.appendChild(nv);
+    function d2(){p.textContent=fl[j];speak(fl[j]);n2.textContent=j>=fl.length-1?T().done:T().nextP2}
+    n2.onclick=function(){ if(j>=fl.length-1){b.innerHTML="";return} j++;d2()};d2();
+  }else if(k==="parable"){
+    var seed=Math.floor(Math.random()*1000), n=0;
+    function par(){var base=PAR[n%PAR.length]; var ctx={p:PERS[(seed+n)%PERS.length],s:SAB[(seed+n+1)%SAB.length],pl:PLA[(seed+n+2)%PLA.length],o:OBJ[(seed+n+3)%OBJ.length]};
+      var ex2=(lang==="es"&&window.IAD_PARABLES_PROPIAS)||[]; var pp=n<ex2.length?{t:ex2[n].texto,m:ex2[n].ensenanza||""}:(PARX[lang]?PARX[lang][(n-ex2.length)%3]:null); var txt=pp?(pp.t+"\n\n— "+pp.m):(base.f(ctx,lang)+"\n\n— "+base.m[lang]); b.innerHTML="";var q=el("div","phrase",txt);q.style.fontSize="1.1rem";q.style.textAlign="left";b.appendChild(q);
+      var bt=el("button","btn ghost",T().parNew);bt.onclick=function(){n++;seed+=7;par()};b.appendChild(bt);speak(pp?(pp.t+" "+pp.m):(base.f(ctx,lang)+" "+base.m[lang]))}
+    par();
+  }else if(k==="nature"){
+    try{var AC=window.AudioContext||window.webkitAudioContext,c=new AC(),len=c.sampleRate*4,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0),l=0;
+      for(var x=0;x<len;x++){var w=Math.random()*2-1;l=(l+0.02*w)/1.02;d[x]=l*3.2}
+      var src=c.createBufferSource();src.buffer=buf;src.loop=true;var f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=900;
+      var lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=.12;lg.gain.value=.12;var g=c.createGain();g.gain.value=.35;
+      lfo.connect(lg);lg.connect(g.gain);src.connect(f);f.connect(g);g.connect(c.destination);src.start();lfo.start();nat={src:src,c:c};
+      var s=el("button","btn ghost",T().stop);s.onclick=function(){stopSounds();b.innerHTML=""};b.appendChild(s);}catch(e){}
+  }else if(k==="tone"){
+    try{var AC2=window.AudioContext||window.webkitAudioContext,c2=new AC2(),o=c2.createOscillator(),g2=c2.createGain();o.type="sine";o.frequency.value=432;g2.gain.value=.05;o.connect(g2);g2.connect(c2.destination);o.start();tone={o:o,c:c2};
+      b.appendChild(el("p","note",T().toneNote));var s2=el("button","btn ghost",T().stop);s2.onclick=function(){stopSounds();b.innerHTML=""};b.appendChild(s2);}catch(e){}
+  }else if(k==="silence"){
+    b.appendChild(el("p","phrase",T().ex.silence));
+  }else if(k==="bye"){
+    b.appendChild(el("p",null,T().saveQ));var r=el("div","actions");
+    var sv=el("button","btn",T().save);sv.onclick=function(){lsSet("iad_saved",{day:today(),hist:hist});b.innerHTML="";b.appendChild(el("p",null,T().saved))};
+    var dl=el("button","btn ghost",T().del);dl.onclick=function(){hist=[];log.innerHTML="";try{localStorage.removeItem("iad_saved")}catch(e){}add("sys",T().deleted)};
+    r.appendChild(sv);r.appendChild(dl);b.appendChild(r);
+    var bye=T().ex.bye;
+    add("bot",bye);speak(bye);
+  }
+  log.scrollTop=log.scrollHeight;
+}
+
+/* ---------------- Envío ---------------- */
+function send(){
+  var t=inp.value.trim(); if(!t||busy)return;
+  inp.value="";inp.style.height="auto";
+  add("me",t); hist.push({r:"user",c:t});
+  var s=evalSafety(t);
+  if(s.nivel==="ALTO_RIESGO"||s.nivel==="EMERGENCIA"){ enterSafe(s.grave); $("send").disabled=false; return; }
+  if(s.ayuda){ showSos(false); }
+  if(timeUp()&&!safeMode){ add("sys",T().over); if(stage<3)gotoStage(3,true); return; }
+  $("send").disabled=true; reply();
+}
+$("send").addEventListener("click",send);
+inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+inp.addEventListener("input",function(){inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,140)+"px"});
+
+/* ---------------- Controles superiores ---------------- */
+function applyLang(){
+  var t=T();
+  $("sub").textContent=t.sub; inp.placeholder=t.ph; $("send").textContent=t.send; $("foot").textContent=t.foot;
+  $("timer").title=t.ex.timer;
+  var g=t.gate; $("g-h").textContent=g.h;$("g-p").textContent=g.p;$("g-p2").textContent=g.p2;$("g-c1").textContent=g.c1;$("g-c2").textContent=g.c2;$("go").textContent=g.go;$("g-n").textContent=g.n;
+  renderStages(); renderDock();
+}
+$("voiceT").addEventListener("click",function(){voiceOn=!voiceOn;$("voiceT").setAttribute("aria-pressed",voiceOn);if(!voiceOn)stopSpeak();else{var h=hist.length?null:null}});
+$("sosT").addEventListener("click",function(){showSos(false)});
+function gateOk(){$("go").disabled=!($("g1").checked&&$("g2").checked)}
+$("g1").addEventListener("change",gateOk);$("g2").addEventListener("change",gateOk);
+$("go").addEventListener("click",function(){
+  $("gate").hidden=true; started=true; lsSet("iad_consent",{day:today()});
+  var h=T().hi; add("bot",h); hist.push({r:"assistant",c:h});
+  // pide el permiso de IA con un gesto del usuario, sin bloquear la app si lo rechaza
+  ensureSample().catch(function(){});
+});
+/* ---------------- Capacidades opcionales ---------------- */
+if(window.claude&&window.claude.use){
+  window.claude.use("tts").then(function(t){tts=t}).catch(function(){});
+  window.claude.use("dictation").then(function(d){
+    dict=d; if(!d)return; var mic=$("mic"); mic.hidden=false; var base="";
+    d.onPartial(function(o){inp.value=base+o.text});
+    d.onFinal(function(o){base=base+o.text+" ";inp.value=base});
+    d.onState(function(o){mic.textContent=o.state==="listening"?"■":"🎤"});
+    mic.addEventListener("click",function(){ if(mic.textContent==="■"){d.stop().catch(function(){})} else {base=inp.value?inp.value+" ":"";d.start().catch(function(){})} });
+  }).catch(function(){});
+}
+window.IAD={setLang:function(l){if(L[l]){lang=l;applyLang()}},stopAll:function(){stopSpeak();stopSounds();try{vid.pause()}catch(e){}}};
+loadUsed(); renderTimer(); applyLang();
+if(timeUp()){ $("go").addEventListener("click",function(){setTimeout(function(){add("sys",T().over);gotoStage(3,true)},50)}); }
+})();
+
+window.IAD_VOICE_CLIPS=window.IAD_VOICE_CLIPS||{};
+/* ===== Lógica de la página ===== */
+var CONFIG={FORM_ENDPOINT:"",CONTACT_EMAIL:"",AI_ENDPOINT:"https://ia-desahogo-ia.onrender.com"}; /* FORM_ENDPOINT: URL de un servicio de formularios/correo (Brevo, Formspree, Google Apps Script). Vacío = usa la base de datos de esta página si está disponible. */
+(function(){
+  var lang="es",country="CO",seq=[],pos=0,state="idle",cur=0,topicsSel=[];
+  var $=function(i){return document.getElementById(i)};
+  var vids=document.querySelectorAll("#screen video.v"),scr=$("screen"),playBtn=$("play"),sumry=$("sumry");
+  var IMGS=["paso1.jpg","paso2.jpg","paso3.jpg"];
+  function T(){return TX[lang]}
+  function CH(){return T().chapters}
+  function byVid(i){var a=CH();for(var k=0;k<a.length;k++)if(a[k].v===i)return a[k];return a[0]}
+  function show(i){ if(i!==cur){var o=vids[cur];o.classList.remove("on");o.pause();cur=i;try{vids[cur].currentTime=0}catch(e){}} vids[cur].classList.add("on");markStep(); }
+  function markStep(){ var cs=document.querySelectorAll(".step"); cs.forEach(function(b,k){ if(state!=="idle"&&CH()[k].v===cur)b.setAttribute("aria-current","true"); else b.removeAttribute("aria-current"); }); }
+  function summary(i){ var c=byVid(i); sumry.innerHTML=""; var h=document.createElement("h3"); h.textContent=c.h; sumry.appendChild(h); c.p.forEach(function(t){var p=document.createElement("p");p.textContent=t;sumry.appendChild(p)}); }
+  function setState(s){ state=s; var t=T(); playBtn.textContent=s==="playing"?t.pause:(s==="paused"||s==="blocked")?t.resume:t.play; scr.classList.toggle("speaking",s==="playing"); $("state").textContent=s==="playing"?t.playing:s==="blocked"?t.blocked:""; markStep(); }
+  function playCurrent(){ var v=vids[cur]; v.muted=false; v.loop=false; v.volume=1; var p=v.play(); if(p&&p.catch)p.catch(function(){setState("blocked")}); }
+  vids.forEach(function(v,i){ v.addEventListener("ended",function(){ if(i!==cur||state!=="playing")return; pos++; if(pos<seq.length){show(seq[pos]);summary(seq[pos]);playCurrent()} else {setState("idle");show(0);renderIdle()} }); });
+  function startSeq(l){ pauseCourse(); seq=l.slice();pos=0;setState("playing");show(seq[0]);summary(seq[0]);playCurrent(); }
+  function renderIdle(){ sumry.innerHTML=""; var p=document.createElement("p"); p.textContent=T().idle; sumry.appendChild(p); }
+  function pauseCourse(){ try{$("cursoVid").pause()}catch(e){} }
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+
+  function renderChapters(){
+    var box=$("chapters");box.innerHTML="";
+    CH().forEach(function(c,i){
+      var b=el("button","step s"+(i+1));b.type="button";
+      var img=el("img");img.src=IMGS[i];img.alt=c.alt;img.loading="lazy";
+      var d=el("div","in");[el("span","n",c.n),el("h3",null,c.t),el("p",null,c.d),el("span","go",T().see)].forEach(function(x){d.appendChild(x)});
+      b.appendChild(img);b.appendChild(d);b.addEventListener("click",function(){startSeq([c.v])});box.appendChild(b);
+    });
+    var tb=$("texts");tb.innerHTML="";
+    T().texts.forEach(function(x){var d=el("div");d.appendChild(el("strong",null,x[0]));d.appendChild(el("span",null,x[1]));tb.appendChild(d)});
+  }
+  function renderLines(){
+    var ul=$("lines");ul.innerHTML="";
+    T().lines[country].forEach(function(l){var li=el("li");li.appendChild(el("strong",null,l[1]));li.appendChild(document.createTextNode(" — "+l[0]));ul.appendChild(li)});
+  }
+  function renderBlog(){
+    var box=$("posts");box.innerHTML="";var B=T().blog;
+    T().posts.forEach(function(p,i){
+      var a=el("article","post p"+(i%4+1));
+      a.appendChild(el("h3",null,p.h));a.appendChild(el("p",null,p.t));
+      a.appendChild(el("p","src",B.src+": "+p.src));
+      var row=el("div","row");
+      (p.g||[]).forEach(function(g){var l=el("a","btn dl",B.dl+" · "+g[1]);l.href=g[0];l.setAttribute("download","");l.target="_blank";l.rel="noopener";row.appendChild(l)});
+      (p.o||[]).forEach(function(g){var l=el("a","btn ghost",B.open+" · "+g[1]);l.href=g[0];l.target="_blank";l.rel="noopener noreferrer";row.appendChild(l)});
+      a.appendChild(row);
+      if((p.g||[]).length)a.appendChild(el("p","note",B.lic));
+      box.appendChild(a);
+    });
+  }
+  function renderForm(){
+    var F=T().form;
+    $("f-h").textContent=F.h;$("f-s").textContent=F.s;$("f-name-l").textContent=F.name;$("f-mail-l").textContent=F.email;$("f-topics-l").textContent=F.topicsL;
+    var tb=$("f-topics");tb.innerHTML="";
+    F.topics.forEach(function(t,i){var l=el("label","chk");var c=document.createElement("input");c.type="checkbox";c.checked=topicsSel.indexOf(i)>=0;
+      c.addEventListener("change",function(){var k=topicsSel.indexOf(i);if(c.checked&&k<0)topicsSel.push(i);if(!c.checked&&k>=0)topicsSel.splice(k,1)});
+      l.appendChild(c);l.appendChild(el("span",null,t));tb.appendChild(l)});
+    $("f-consent-t").textContent=F.consent;$("f-privacy").textContent=F.privacy+(CONFIG.CONTACT_EMAIL?(" "+CONFIG.CONTACT_EMAIL):"");
+    $("f-submit").textContent=F.submit;$("f-pdf").textContent=F.pdfOnly;
+  }
+  function applyLang(){
+    var t=T();var d=document.documentElement;d.lang=({zh:"zh-CN"})[lang]||lang;d.dir=t.dir;
+    var n=$("name").value.trim().slice(0,30);var hi=t.hello(n);
+    $("t-title").textContent=(hi?hi+" ":"")+t.title;$("t-lead").textContent=t.lead;$("t-name-l").textContent=t.nameL;$("name").placeholder=t.namePh;
+    $("stop").textContent=t.stop;$("t-about").textContent=t.about;$("t-about-s").textContent=t.aboutS;$("t-ch").textContent=t.ch;$("t-ch-s").textContent=t.chS;
+    $("t-help-h").textContent=t.helpH;$("t-help-note").textContent=t.helpNote;
+    $("t-vid-h").textContent=t.vid.h;$("t-vid-s").textContent=t.vid.s;
+    $("t-app-h").textContent=t.app.h;$("t-app-s").textContent=t.app.s;$("t-app-n").textContent=t.app.note;
+    $("t-blog-h").textContent=t.blog.h;$("t-blog-s").textContent=t.blog.s;$("t-foot").textContent=t.foot;
+    ["nav-vid","nav-app","nav-news","nav-blog"].forEach(function(id,i){$(id).textContent=t.nav[i]});
+    document.querySelectorAll("#langs [data-l]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-l")===lang)});
+    renderChapters();renderLines();renderBlog();renderForm();setState(state);if(state==="idle")renderIdle();else summary(seq[pos]||0);
+    if(window.IAD&&window.IAD.setLang)window.IAD.setLang(lang);
+  }
+  window.PAGE_setLang=function(l){if(TX[l]){lang=l;applyLang()}};
+  playBtn.addEventListener("click",function(){ if(state==="idle"){startSeq([0,2,1])} else if(state==="playing"){vids[cur].pause();setState("paused")} else {setState("playing");playCurrent()} });
+  $("stop").addEventListener("click",function(){vids.forEach(function(v){v.pause()});show(0);setState("idle");renderIdle()});
+  document.querySelectorAll("#langs [data-l]").forEach(function(b){b.addEventListener("click",function(){lang=b.getAttribute("data-l");applyLang()})});
+  $("name").addEventListener("input",applyLang);
+  document.querySelectorAll(".help [data-c]").forEach(function(b){b.addEventListener("click",function(){country=b.getAttribute("data-c");document.querySelectorAll(".help [data-c]").forEach(function(x){x.setAttribute("aria-pressed",x===b)});renderLines()})});
+  $("cursoVid").addEventListener("play",function(){vids.forEach(function(v){v.pause()});if(state==="playing")setState("paused");try{window.IAD&&window.IAD.stopAll&&window.IAD.stopAll()}catch(e){}});
+  window.addEventListener("pagehide",function(){vids.forEach(function(v){v.pause()})});
+
+  /* ---------- Formulario opcional + PDF personalizado ---------- */
+  function setMsg(txt,bad){var m=$("f-msg");m.textContent=txt;m.className="fmsg"+(bad?" bad":"")}
+  function validEmail(e){return /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e)}
+  function saveSub(rec){
+    if(CONFIG.FORM_ENDPOINT){
+      return fetch(CONFIG.FORM_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).then(function(r){if(!r.ok)throw new Error("http");return "endpoint"});
+    }
+    if(window.claude&&window.claude.use){
+      return window.claude.use("db").then(function(db){
+        if(!db)throw new Error("nodb");
+        return db.collection("suscriptores").doc().set(rec).then(function(){return "db"});
+      });
+    }
+    return Promise.reject(new Error("none"));
+  }
+  function deliver(blob,name){
+    var fn="Neuro-Cian-guia-"+(name||"apoyo").replace(/[^\w\-]+/g,"_").slice(0,30)+".pdf";
+    function fallback(){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);return Promise.resolve()}
+    if(window.claude&&window.claude.use){
+      return window.claude.use("downloads").then(function(d){ if(!d)return fallback(); return d.save({filename:fn,data:blob}).catch(function(){return fallback()}) }).catch(fallback);
+    }
+    return fallback();
+  }
+  function submit(subscribe){
+    var F=T().form;var name=$("f-name").value.trim().slice(0,60);var mail=$("f-mail").value.trim();var ok=$("f-consent").checked;
+    if(!name||(subscribe&&(!validEmail(mail)||!ok))){setMsg(F.err,true);return}
+    var gl=(lang==="en")?"en":"es";var note=(lang!=="es"&&lang!=="en")?(" "+F.lang):"";
+    setMsg("…",false);$("f-submit").disabled=true;$("f-pdf").disabled=true;
+    buildGuidePDF({name:name,topics:topicsSel.slice(),lang:gl}).then(function(blob){
+      return deliver(blob,name).then(function(){return blob});
+    }).then(function(){
+      if(!subscribe){setMsg(F.okPdf+note,false);return}
+      return saveSub({name:name,email:mail,topics:topicsSel.slice(),lang:lang,consent:true,consentText:F.consent,ts:new Date().toISOString()})
+        .then(function(){setMsg(F.ok+note,false)})
+        .catch(function(){setMsg(F.noSave+note,false)});
+    }).catch(function(){setMsg(F.pdfErr,true)}).then(function(){$("f-submit").disabled=false;$("f-pdf").disabled=false});
+  }
+  $("f-submit").addEventListener("click",function(){submit(true)});
+  $("f-pdf").addEventListener("click",function(){submit(false)});
+  applyLang();
+})();
+
+</script>
+</body></html>
