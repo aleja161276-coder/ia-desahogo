@@ -1,0 +1,132 @@
+{
+ "es": {
+  "title": "Tu guía corta de apoyo",
+  "intro": "Neuro Cian preparó esta guía para ti con consejos de guías de la OMS. Elige solo lo que te sirva. No tienes que hacerlo todo.",
+  "sections": {
+   "base": {
+    "t": "Para empezar: poner los pies en la tierra (1 a 2 minutos)",
+    "items": [
+     "Date cuenta de tus pensamientos y sentimientos, sin juzgarlos.",
+     "Baja el ritmo y conecta con tu cuerpo: presiona despacio el suelo con los pies, estírate y respira.",
+     "Vuelve a centrarte en lo que te rodea: ¿qué ves, oyes, tocas, saboreas y hueles? Fíjate en dónde estás y quién está contigo.",
+     "Puedes practicarlo mientras esperas algo o antes de comer, cocinar o dormir."
+    ]
+   },
+   "stress": {
+    "t": "Estrés y ansiedad",
+    "items": [
+     "Practica poner los pies en la tierra aunque solo tengas uno o dos minutos.",
+     "Si practicas en momentos tranquilos, te será más fácil usarlo cuando haya una tormenta emocional.",
+     "Pon una mano con amabilidad donde sientas tensión o dolor e imagina que la llenas de calidez."
+    ]
+   },
+   "hook": {
+    "t": "Pensamientos que te enganchan",
+    "items": [
+     "1) Date cuenta de que un pensamiento o sentimiento difícil te enganchó.",
+     "2) Ponle nombre en silencio: «Aquí hay un sentimiento difícil», «Aquí tengo un peso en el pecho».",
+     "3) Vuelve a centrarte en lo que estás haciendo y en quien está contigo.",
+     "Alejar lo difícil rara vez funciona: déjale espacio. Imagina el sentimiento como un objeto (tamaño, forma, color, temperatura) y deja que pase como el clima cruza el cielo, respirando hacia él y a su alrededor."
+    ]
+   },
+   "lonely": {
+    "t": "Soledad",
+    "items": [
+     "Una de cada seis personas dijo sentirse sola entre 2014 y 2023 (OMS). No eres la única persona.",
+     "Las guías de la OMS recomiendan identificar y activar tus fuentes de apoyo social y comunitario: familia, amistades, comunidad."
+    ]
+   },
+   "sad": {
+    "t": "Tristeza o poca energía",
+    "items": [
+     "Intenta mantener un horario de sueño regular: acostarte y levantarte a horas parecidas.",
+     "Haz actividad física con regularidad, según tus posibilidades.",
+     "Identifica y activa tus fuentes de apoyo social y comunitario.",
+     "Sé amable contigo: nota los pensamientos poco amables, ponles nombre y háblate con amabilidad."
+    ]
+   },
+   "values": {
+    "t": "Actuar según tus valores",
+    "items": [
+     "Elige los valores más importantes para ti (por ejemplo, ser amable, ser útil, ser valiente, ser trabajador).",
+     "Elige una acción pequeña para esta semana que vaya con esos valores: ¿qué harás? ¿qué dirás? Hasta las acciones más pequeñas cuentan.",
+     "Ante algo difícil puedes: irte; cambiar lo que se pueda, aceptar el dolor inevitable y vivir según tus valores; o rendirte y alejarte de ellos."
+    ]
+   }
+  },
+  "helpT": "Si necesitas ayuda ahora",
+  "help": [
+   "Colombia: Línea 106 (salud mental, 24 h) · Emergencias 123 · Teleorientación MinSalud 192, opción 4.",
+   "Si estás en peligro o ya te hiciste daño, llama de inmediato a emergencias y busca a alguien de confianza que esté cerca."
+  ],
+  "note": "Neuro Cian es una IA: te acompaña, pero no reemplaza a un psicólogo ni a un servicio de emergencia.",
+  "src": "Fuentes y licencia: adaptado de OMS, «En tiempos de estrés, haz lo que importa» (2020) y de la Guía de intervención mhGAP (consejos generales, parafraseados); datos de la OMS (Comisión sobre Conexión Social). Material resumido y adaptado por IA de Desahogo; no es una versión oficial ni está avalado por la OMS. Se comparte bajo licencia CC BY-NC-SA 3.0 IGO (creativecommons.org/licenses/by-nc-sa/3.0/igo).",
+  "page": "Página",
+  "helloFmt": "Hola, {name}"
+ },
+ "en": {
+  "title": "Your short support guide",
+  "intro": "Neuro Cian prepared this guide for you with tips from WHO guides. Choose only what helps. You don't have to do it all.",
+  "sections": {
+   "base": {
+    "t": "To start: grounding (1 to 2 minutes)",
+    "items": [
+     "Notice your thoughts and feelings, without judging them.",
+     "Slow down and connect with your body: slowly press your feet into the floor, stretch and breathe.",
+     "Refocus on the world around you: what can you see, hear, touch, taste and smell? Notice where you are and who is with you.",
+     "You can practice it while waiting for something or before eating, cooking or sleeping."
+    ]
+   },
+   "stress": {
+    "t": "Stress and anxiety",
+    "items": [
+     "Practice grounding even if you only have a minute or two.",
+     "If you practice in calm moments, it gets easier to use during an emotional storm.",
+     "Place a hand kindly where you feel tension or pain and imagine filling it with warmth."
+    ]
+   },
+   "hook": {
+    "t": "Thoughts that hook you",
+    "items": [
+     "1) Notice that a difficult thought or feeling has hooked you.",
+     "2) Silently name it: “Here is a difficult feeling”, “Here is a heaviness in my chest”.",
+     "3) Refocus on what you are doing and who is with you.",
+     "Pushing difficult things away rarely works: make room for them. Imagine the feeling as an object (size, shape, color, temperature) and let it pass like weather crossing the sky, breathing into and around it."
+    ]
+   },
+   "lonely": {
+    "t": "Loneliness",
+    "items": [
+     "One in six people said they felt lonely between 2014 and 2023 (WHO). You are not the only one.",
+     "WHO guides recommend identifying and activating your sources of social and community support: family, friends, community."
+    ]
+   },
+   "sad": {
+    "t": "Sadness or low energy",
+    "items": [
+     "Try to keep a regular sleep schedule: go to bed and get up at similar times.",
+     "Do physical activity regularly, as you are able.",
+     "Identify and activate your sources of social and community support.",
+     "Be kind to yourself: notice unkind thoughts, name them and talk to yourself kindly."
+    ]
+   },
+   "values": {
+    "t": "Acting on your values",
+    "items": [
+     "Choose the values most important to you (for example, being kind, being helpful, being brave, being hardworking).",
+     "Choose one small action for this week that fits those values: what will you do? what will you say? Even the smallest actions count.",
+     "Faced with something hard you can: leave; change what can be changed, accept the unavoidable pain and live by your values; or give up and move away from them."
+    ]
+   }
+  },
+  "helpT": "If you need help now",
+  "help": [
+   "Colombia: Line 106 (mental health, 24 h) · Emergencies 123 · MinSalud tele-guidance 192, option 4. USA: text HOME to 741741, or call/text 988.",
+   "If you are in danger or have already hurt yourself, call emergency services right away and reach out to someone you trust who is nearby."
+  ],
+  "note": "Neuro Cian is an AI: it keeps you company but does not replace a therapist or emergency services.",
+  "src": "Sources and license: adapted from WHO, “Doing What Matters in Times of Stress” (2020) and the mhGAP Intervention Guide (general advice, paraphrased); WHO data (Commission on Social Connection). Summarized and adapted by IA de Desahogo; not an official WHO version and not endorsed by WHO. Shared under CC BY-NC-SA 3.0 IGO (creativecommons.org/licenses/by-nc-sa/3.0/igo).",
+  "page": "Page",
+  "helloFmt": "Hi, {name}"
+ }
+}
